@@ -6,6 +6,9 @@
     "deprecation": {
       "severity": "warning"
     },
+    "arrow-return-shorthand": true,
+    "callable-types": true,
+    "class-name": true,
     "component-class-suffix": true,
     "contextual-lifecycle": true,
     "directive-class-suffix": true,
@@ -15,15 +18,26 @@
       "app",
       "camelCase"
     ],
+    "comment-format": [
+      true,
+      "check-space"
+    ],
     "component-selector": [
       true,
       "element",
       "app",
       "kebab-case"
     ],
+    "eofline": true,
+    "forin": true,
     "import-blacklist": [
       true,
       "rxjs/Rx"
+    ],
+    "import-spacing": true,
+    "indent": [
+      true,
+      "spaces"
     ],
     "interface-name": false,
     "max-classes-per-file": false,

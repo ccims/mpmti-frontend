@@ -8,6 +8,9 @@ import { MaterialModule } from './material.module';
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { SettingsComponent } from './settings/settings.component';
+import { AccountComponent } from './account/account.component';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 
 @NgModule({
@@ -15,7 +18,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     AppComponent,
     LoginComponent,
     RegistrationComponent,
-    DashboardComponent
+    DashboardComponent,
+    SettingsComponent,
+    AccountComponent,
+    ToolbarComponent,
   ],
   imports: [
     BrowserModule,

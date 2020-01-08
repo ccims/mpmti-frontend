@@ -1,9 +1,17 @@
-.my-form{
-    min-width: 150px;
-    max-width: 500px;
-    width: 100%;
-  }
-   
-  .full-width {
-    width: 100%;
-  }
+.my-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+h1.app-name {
+  margin-left: 8px;
+}

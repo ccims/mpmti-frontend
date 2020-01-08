@@ -1,0 +1,24 @@
+<mat-toolbar color="primary" class="toolbar">
+    <h1 class="app-name">MPIMLAN</h1>
+    <span class="spacer"></span>
+    <a [routerLink]="['/dashboard']">
+        <button mat-icon-button>
+            <mat-icon class="toolbar-button">dashboard</mat-icon>
+        </button>
+    </a>
+    <a [routerLink]="['/account']">
+        <button mat-icon-button>
+            <mat-icon class="toolbar-button">account_circle</mat-icon>
+        </button>
+    </a>
+    <a [routerLink]="['/settings']">
+        <button mat-icon-button>
+            <mat-icon class="toolbar-button">settings_applications</mat-icon>
+        </button>
+    </a>
+    <a [routerLink]="['/']">
+        <button mat-icon-button>
+            <mat-icon class="toolbar-button">arrow_forward</mat-icon>
+        </button>
+    </a>
+</mat-toolbar>

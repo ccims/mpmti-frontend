@@ -5,21 +5,23 @@ import {
     MatFormFieldModule, MatInputModule, MatRadioModule, MatListModule,
 } from '@angular/material';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @NgModule({
     imports: [MatNativeDateModule, MatDatepickerModule, MatIconModule,
         MatButtonModule, MatCheckboxModule, MatToolbarModule, FormsModule,
         MatCardModule, MatFormFieldModule, MatInputModule, MatListModule, MatRadioModule,
-        MatSidenavModule
+        MatSidenavModule, MatExpansionModule, MatTooltipModule
     ],
 
     exports: [MatNativeDateModule, FormsModule,
         MatDatepickerModule, MatIconModule, MatButtonModule,
         MatCheckboxModule, MatToolbarModule, MatCardModule, MatFormFieldModule,
         MatInputModule, MatListModule, MatRadioModule,
-        MatSidenavModule
+        MatSidenavModule, MatExpansionModule, MatTooltipModule
     ],
 
 })

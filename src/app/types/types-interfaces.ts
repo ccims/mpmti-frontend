@@ -23,3 +23,7 @@ export interface RSCredential {
     providerType: string;
     credential: string;
 }
+
+export interface Project {
+    projectName: string;
+}

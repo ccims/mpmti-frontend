@@ -34,6 +34,17 @@ h1.app-name {
   color: white;
 }
 
+.sidenav-button {
+  position: absolute;
+  right: 0px;
+}
+
+.sidenav-title-text {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+}
+
 .spacer {
   flex: 1 1 auto;
 }

@@ -11,6 +11,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
 import { AccountComponent } from './account/account.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { ProjectOverviewComponent } from './project-overview/project-overview.component';
+import { ProjectIssuesComponent } from './project-issues/project-issues.component';
 
 
 @NgModule({
@@ -22,6 +24,8 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     SettingsComponent,
     AccountComponent,
     ToolbarComponent,
+    ProjectOverviewComponent,
+    ProjectIssuesComponent,
   ],
   imports: [
     BrowserModule,

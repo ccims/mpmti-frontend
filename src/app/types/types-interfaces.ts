@@ -26,4 +26,5 @@ export interface RSCredential {
 
 export interface Project {
     projectName: string;
+    displayName: string;
 }

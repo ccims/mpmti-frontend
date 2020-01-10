@@ -5,6 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
 import { AccountComponent } from './account/account.component';
+import { ProjectOverviewComponent } from './project-overview/project-overview.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'account', component: AccountComponent },
+  { path: 'projects/:project-name/overview', component: ProjectOverviewComponent }
 ];
 
 @NgModule({

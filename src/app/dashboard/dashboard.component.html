@@ -38,12 +38,14 @@
                 <mat-expansion-panel *ngFor="let project of projects;">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            {{project.projectName}}
+                            {{project.displayName}}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-nav-list>
-                        <a mat-list-item routerLink=".">{{'Overview'}}</a>
-                        <a mat-list-item routerLink=".">{{'Issues'}}</a>
+                        <a mat-list-item
+                            (click)="setCurrentProjectAndOpenSidenavContentComponent(project.projectName, 'Overview')">{{'Overview'}}</a>
+                        <a mat-list-item
+                            (click)="setCurrentProjectAndOpenSidenavContentComponent(project.projectName, 'Issues')">{{'Issues'}}</a>
                     </mat-nav-list>
                 </mat-expansion-panel>
                 <div *ngIf="projects == null || projects?.length === 0">
@@ -52,8 +54,11 @@
             </mat-accordion>
         </mat-sidenav>
 
-        <mat-sidenav-content>
-            <p>Hello World</p>
+        <mat-sidenav-content [ngSwitch]="openSidenavContent">
+            <app-project-overview *ngSwitchCase="'Overview'"></app-project-overview>
+            <app-project-issues *ngSwitchCase="'Issues'"></app-project-issues>
+            <b *ngSwitchCase="'DashboardOverview'">Select a project in Sidenav! This is a temporary view and should be
+                exchanged to a nice component.</b>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </div>

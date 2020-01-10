@@ -8,21 +8,27 @@ import { Project } from '../types/types-interfaces';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
+  private currentProject: Project;
+  private openSidenavContent: string = 'DashboardOverview';
   private projects: Project[];
 
   constructor() {
   }
 
   ngOnInit() {
+    // TODO load projects of user from backend
     this.projects = [
       {
-        projectName: 'Sandro\'s Project'
+        projectName: 'sandros-project',
+        displayName: 'Sandro\'s Project'
       },
       {
-        projectName: 'PSE'
+        projectName: 'pse',
+        displayName: 'PSE'
       },
       {
-        projectName: 'PizzaCalculator'
+        projectName: 'pizza-calculator',
+        displayName: 'PizzaCalculator'
       }
     ];
   }
@@ -30,14 +36,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  addNewProject(): void {
+  private addNewProject(): void {
     // TODO Open dialog and ask user for project information
     // TODO Check project information and throw error if necessary
     // TODO create new project and send it to backend
     const project: Project = {
-      projectName: 'Some project name'
+      projectName: 'some-project-name',
+      displayName: 'Some project name'
     };
     // TODO if backend answeres with 201 add to projects, otherwise throw an error
     this.projects.push(project);
+  }
+
+  private setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
+    this.projects.forEach((project) => {
+      if (project.projectName === projectName) {
+        this.currentProject = project;
+      }
+    });
+    this.openSidenavContent = sidenavContentComponent;
+    console.log(this.currentProject.projectName);
   }
 }

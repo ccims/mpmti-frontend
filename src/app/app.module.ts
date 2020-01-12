@@ -13,6 +13,8 @@ import { AccountComponent } from './account/account.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { ProjectOverviewComponent } from './project-overview/project-overview.component';
 import { ProjectIssuesComponent } from './project-issues/project-issues.component';
+import { SystemArchitectureGraphComponent } from './system-architecture-graph/system-architecture-graph.component';
+import { IssueListComponent } from './issue-list/issue-list.component';
 
 
 @NgModule({
@@ -26,6 +28,8 @@ import { ProjectIssuesComponent } from './project-issues/project-issues.componen
     ToolbarComponent,
     ProjectOverviewComponent,
     ProjectIssuesComponent,
+    SystemArchitectureGraphComponent,
+    IssueListComponent,
   ],
   imports: [
     BrowserModule,

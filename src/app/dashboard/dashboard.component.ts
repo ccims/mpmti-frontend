@@ -55,6 +55,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
     this.openSidenavContent = sidenavContentComponent;
-    console.log(this.currentProject.projectName);
   }
 }

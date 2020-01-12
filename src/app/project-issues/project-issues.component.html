@@ -1,1 +1,18 @@
-<p>project-issues works!</p>
+<mat-tab-group>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon matTooltip="System Architecture Graph View">account_tree</mat-icon>
+        </ng-template>
+        <ng-template matTabContent>
+            <app-system-architecture-graph></app-system-architecture-graph>
+        </ng-template>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon matTooltip="List View">list</mat-icon>
+        </ng-template>
+        <ng-template matTabContent>
+            <app-issue-list></app-issue-list>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>

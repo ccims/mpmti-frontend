@@ -1,0 +1,28 @@
+.slide-toggle {
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bug-report-icon {
+    color: red;
+}
+
+.feature-request-icon {
+    color: #005eff;
+}
+
+.unclassified-issue-icon {
+    font-size: larger;
+}
+
+.feature-request-icon, .bug-report-icon, .notification-icon {
+    margin-top: 7px;
+}
+
+.component-accordion {
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 10px;
+}

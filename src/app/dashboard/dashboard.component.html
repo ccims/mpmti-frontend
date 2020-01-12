@@ -30,7 +30,7 @@
         <mat-sidenav #sidenav [mode]="'side'">
             <div style="min-height: 40px;">
                 <b class="sidenav-title-text">Your projects</b>
-                <button mat-icon-button class="sidenav-button" matTooltip="Add a new project" (click)="addNewProject()">
+                <button mat-icon-button class="sidenav-button" matTooltip="Add new Project" (click)="addNewProject()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </div>
@@ -56,7 +56,7 @@
 
         <mat-sidenav-content [ngSwitch]="openSidenavContent">
             <app-project-overview *ngSwitchCase="'Overview'"></app-project-overview>
-            <app-project-issues *ngSwitchCase="'Issues'"></app-project-issues>
+            <app-project-issues *ngSwitchCase="'Issues'"></this></app-project-issues>
             <b *ngSwitchCase="'DashboardOverview'">Select a project in Sidenav! This is a temporary view and should be
                 exchanged to a nice component.</b>
         </mat-sidenav-content>

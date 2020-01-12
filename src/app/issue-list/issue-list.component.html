@@ -1,0 +1,22 @@
+<mat-slide-toggle matTooltip="Feature Requests" class="slide-toggle"><mat-icon class="feature-request-icon">emoji_objects</mat-icon></mat-slide-toggle>
+<mat-slide-toggle matTooltip="Bug Reports" class="slide-toggle"><mat-icon class="bug-report-icon">bug_report</mat-icon></mat-slide-toggle>
+<mat-slide-toggle matTooltip="Unclassified Issues" class="slide-toggle"><b class="unclassified-issue-icon">?</b></mat-slide-toggle>
+<mat-slide-toggle matTooltip="Notifications" class="slide-toggle"><mat-icon class="notification-icon">notifications</mat-icon></mat-slide-toggle>
+<div class="component-accordion">
+    <mat-accordion multi="true">
+        <mat-expansion-panel *ngFor="let project of projects;">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{project.displayName}}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <ng-template matExpansionPanelContent>
+              Here should be a list of issues <!-- TODO load list of issues -->
+          </ng-template>
+          <mat-action-row>
+            <button mat-button>New Issue</button> <!-- TODO maybe as "a" and link to new issue page or considering creation of issue via dialog -->
+          </mat-action-row>
+        </mat-expansion-panel>
+      
+      </mat-accordion>
+</div>

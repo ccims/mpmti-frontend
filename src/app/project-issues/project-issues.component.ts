@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { Project, ProjectComponent, ProjectComponentInterface } from '../types/types-interfaces';
 
 @Component({
   selector: 'app-project-issues',
@@ -7,6 +8,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProjectIssuesComponent implements OnInit {
 
+  @Input()
+  private project: Project;
   constructor() { }
 
   ngOnInit() {

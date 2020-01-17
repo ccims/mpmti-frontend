@@ -28,3 +28,18 @@ export interface Project {
     projectName: string;
     displayName: string;
 }
+
+export interface ProjectComponent {
+    componentName: string;
+    interfaces: ProjectComponentInterface[];
+}
+
+export interface ProjectComponentInterface {
+    interfaceName: string;
+}
+
+export interface SystemArchitectureEdgeListNode {
+    componentName: string;
+    edgesToInterfaces: string[];
+    edgesToComponents: string[];
+}

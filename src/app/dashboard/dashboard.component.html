@@ -55,8 +55,8 @@
         </mat-sidenav>
 
         <mat-sidenav-content [ngSwitch]="openSidenavContent">
-            <app-project-overview *ngSwitchCase="'Overview'"></app-project-overview>
-            <app-project-issues *ngSwitchCase="'Issues'"></app-project-issues>
+            <app-project-overview *ngSwitchCase="'Overview'" [project]="this.currentProject"></app-project-overview>
+            <app-project-issues *ngSwitchCase="'Issues'" [project]="this.currentProject"></app-project-issues>
             <b *ngSwitchCase="'DashboardOverview'">Select a project in Sidenav! This is a temporary view and should be
                 exchanged to a nice component.</b>
         </mat-sidenav-content>

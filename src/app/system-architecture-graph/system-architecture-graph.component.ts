@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Project, ProjectComponent, ProjectComponentInterface, SystemArchitectureEdgeListNode } from '../types/types-interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateComponentDialogComponent } from '../dialogs/create-component-dialog/create-component-dialog.component';
 
 @Component({
   selector: 'app-system-architecture-graph',
@@ -14,7 +16,7 @@ export class SystemArchitectureGraphComponent implements OnInit {
   private componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
   private systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
 
-  constructor() { }
+  constructor(public dialog: MatDialog) { }
 
   ngOnInit() {
     this.components = [
@@ -62,5 +64,13 @@ export class SystemArchitectureGraphComponent implements OnInit {
         edgesToComponents: []
       }
     ];
+  }
+
+  openCreateComponentDialog() {
+    const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
+
+    createComponentDialog.afterClosed().subscribe(componentInformation => {
+      console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
+    });
   }
 }

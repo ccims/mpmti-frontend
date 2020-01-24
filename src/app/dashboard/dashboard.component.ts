@@ -56,4 +56,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
     this.openSidenavContent = sidenavContentComponent;
   }
+
+  private logout(): void {
+    localStorage.removeItem('token'); // TODO implement correctly
+  }
 }

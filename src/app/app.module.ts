@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +18,7 @@ import { SystemArchitectureGraphComponent } from './system-architecture-graph/sy
 import { IssueListComponent } from './issue-list/issue-list.component';
 import { ApiService } from './api/api.service';
 import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
+import { CreateComponentDialogComponent } from './dialogs/create-component-dialog/create-component-dialog.component';
 
 
 @NgModule({
@@ -32,13 +34,16 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
     ProjectIssuesComponent,
     SystemArchitectureGraphComponent,
     IssueListComponent,
+    CreateComponentDialogComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MaterialModule,
+    FormsModule, ReactiveFormsModule
   ],
+  entryComponents: [CreateComponentDialogComponent],
   providers: [
     ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
   ],

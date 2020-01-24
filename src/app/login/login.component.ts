@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit {
     //   if (token) {
     //     localStorage.setItem('token', token.token);
     //     localStorage.setItem('username', this.username);
+    localStorage.setItem('token', 'test-token');
     this.router.navigate(['dashboard']);
     //   } else {
     //     alert('Invalid credentials');

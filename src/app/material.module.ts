@@ -10,14 +10,17 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import {MatStepperModule} from '@angular/material/stepper';
 
 @NgModule({
     imports: [MatNativeDateModule, MatDatepickerModule, MatIconModule,
         MatButtonModule, MatCheckboxModule, MatToolbarModule, FormsModule,
         MatCardModule, MatFormFieldModule, MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
-        MatSlideToggleModule
+        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule
     ],
 
     exports: [MatNativeDateModule, FormsModule,
@@ -25,7 +28,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
         MatCheckboxModule, MatToolbarModule, MatCardModule, MatFormFieldModule,
         MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
-        MatSlideToggleModule
+        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule
     ],
 
 })

@@ -70,7 +70,9 @@ export class SystemArchitectureGraphComponent implements OnInit {
     const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
 
     createComponentDialog.afterClosed().subscribe(componentInformation => {
-      console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
+      if (componentInformation) {
+        console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
+      }
     });
   }
 }

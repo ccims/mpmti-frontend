@@ -1,26 +1,33 @@
 <mat-toolbar color="primary">
    <mat-toolbar-row>
-     <!--  <span>HOME</span> -->
+      <!--  <span>HOME</span> -->
       <h1 class="app-name" href="/">MPIMLAN</h1>
       <span class="spacer"></span>
       <a mat-button routerLink="/register">Register</a>
       <a mat-button routerLink="/login">Login</a>
    </mat-toolbar-row>
 </mat-toolbar>
-  <mat-card class="my-card">
-     <mat-card-content>
-        <form class="my-form">
-           <mat-form-field class="full-width">
-              <mat-label>Email</mat-label>
-              <input  matInput  placeholder="Email" name="email" required>
-           </mat-form-field>
-           <mat-form-field class="full-width">
-              <mat-label>Password</mat-label>
-              <input  matInput  placeholder="Password" name="password" required>
-           </mat-form-field>
-        </form>
-     </mat-card-content>
-     <mat-card-actions>
-        <button mat-raised-button (click)="login()" color="primary">LOGIN</button>
-     </mat-card-actions>
-  </mat-card>
+<mat-card class="my-card">
+   <mat-card-content>
+      <form class="my-form" [formGroup]="loginData">
+         <mat-form-field class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput type="text" name="username" formControlName="username" required>
+            <mat-error *ngIf="!loginData?.valid">
+               Please enter a valid username
+            </mat-error>
+         </mat-form-field>
+         <mat-form-field class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" name="password" formControlName="password" required>
+            <mat-error *ngIf="!loginData?.valid">
+               Please enter a valid password. Passwords must be: At least 8 characters long, max length anything,
+               include at least 1 lowercase letter, 1 capital letter, 1 number, 1 special character => !@#$%^&*
+            </mat-error>
+         </mat-form-field>
+      </form>
+   </mat-card-content>
+   <mat-card-actions>
+      <button mat-raised-button (click)="login()" color="primary" [disabled]="!loginData?.valid">LOGIN</button>
+   </mat-card-actions>
+</mat-card>

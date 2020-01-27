@@ -21,7 +21,7 @@
             </button>
         </a>
         <a [routerLink]="['/']">
-            <button mat-icon-button (click)="logout()">
+            <button mat-icon-button (click)="this.logout()">
                 <mat-icon class="toolbar-button">arrow_forward</mat-icon>
             </button>
         </a>
@@ -30,33 +30,35 @@
         <mat-sidenav #sidenav [mode]="'side'">
             <div style="min-height: 40px;">
                 <b class="sidenav-title-text">Your projects</b>
-                <button mat-icon-button class="sidenav-button" matTooltip="Add new Project" (click)="addNewProject()">
+                <button mat-icon-button class="sidenav-button" matTooltip="Add new Project"
+                    (click)="this.onCreateProjectDialog()">
                     <mat-icon>add_circle</mat-icon>
                 </button>
             </div>
             <mat-accordion multi="true">
-                <mat-expansion-panel *ngFor="let project of projects;">
+                <mat-expansion-panel *ngFor="let project of this.getProjects();">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            {{project.displayName}}
+                            {{project.generalInformation.displayName}}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-nav-list>
                         <a mat-list-item
-                            (click)="setCurrentProjectAndOpenSidenavContentComponent(project.projectName, 'Overview')">{{'Overview'}}</a>
+                            (click)="this.setCurrentProjectAndOpenSidenavContentComponent(project.generalInformation.projectName, 'Overview')">{{'Overview'}}</a>
                         <a mat-list-item
-                            (click)="setCurrentProjectAndOpenSidenavContentComponent(project.projectName, 'Issues')">{{'Issues'}}</a>
+                            (click)="this.setCurrentProjectAndOpenSidenavContentComponent(project.generalInformation.projectName, 'Issues')">{{'Issues'}}</a>
                     </mat-nav-list>
                 </mat-expansion-panel>
-                <div *ngIf="projects == null || projects?.length === 0">
+                <div *ngIf="this.getProjects() == null || this.getProjects()?.length === 0">
                     No projects created yet.
                 </div>
             </mat-accordion>
         </mat-sidenav>
 
-        <mat-sidenav-content [ngSwitch]="openSidenavContent">
-            <app-project-overview *ngSwitchCase="'Overview'" [project]="this.currentProject"></app-project-overview>
-            <app-project-issues *ngSwitchCase="'Issues'" [project]="this.currentProject"></app-project-issues>
+        <mat-sidenav-content [ngSwitch]="this.getOpenSidenavContent()">
+            <app-project-overview *ngSwitchCase="'Overview'" [project]="this.getCurrentProject()">
+            </app-project-overview>
+            <app-project-issues *ngSwitchCase="'Issues'" [project]="this.getCurrentProject()"></app-project-issues>
             <b *ngSwitchCase="'DashboardOverview'">Select a project in Sidenav! This is a temporary view and should be
                 exchanged to a nice component.</b>
         </mat-sidenav-content>

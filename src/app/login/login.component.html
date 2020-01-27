@@ -9,18 +9,18 @@
 </mat-toolbar>
 <mat-card class="my-card">
    <mat-card-content>
-      <form class="my-form" [formGroup]="loginData">
+      <form class="my-form" [formGroup]="this.getLoginData()">
          <mat-form-field class="full-width">
             <mat-label>Username</mat-label>
             <input matInput type="text" name="username" formControlName="username" required>
-            <mat-error *ngIf="!loginData?.valid">
+            <mat-error *ngIf="!this.getLoginData()?.valid">
                Please enter a valid username
             </mat-error>
          </mat-form-field>
          <mat-form-field class="full-width">
             <mat-label>Password</mat-label>
             <input matInput type="password" name="password" formControlName="password" required>
-            <mat-error *ngIf="!loginData?.valid">
+            <mat-error *ngIf="!this.getLoginData()?.valid">
                Please enter a valid password. Passwords must be: At least 8 characters long, max length anything,
                include at least 1 lowercase letter, 1 capital letter, 1 number, 1 special character => !@#$%^&*
             </mat-error>
@@ -28,6 +28,7 @@
       </form>
    </mat-card-content>
    <mat-card-actions>
-      <button mat-raised-button (click)="login()" color="primary" [disabled]="!loginData?.valid">LOGIN</button>
+      <button mat-raised-button (click)="this.login()" color="primary"
+         [disabled]="!this.getLoginData()?.valid">LOGIN</button>
    </mat-card-actions>
 </mat-card>

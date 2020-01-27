@@ -15,4 +15,8 @@ export class ProjectIssuesComponent implements OnInit {
   ngOnInit() {
   }
 
+  protected getProject(): Project {
+    return this.project;
+  }
+
 }

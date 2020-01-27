@@ -1,5 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Project } from '../types/types-interfaces';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Project, ProjectInformation } from '../types/types-interfaces';
+import { MatDialog } from '@angular/material';
+import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/create-project-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,27 +10,69 @@ import { Project } from '../types/types-interfaces';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  private currentProject: Project;
+  private username: string;
+  private currentProject: ProjectInformation;
   private openSidenavContent: string = 'DashboardOverview';
-  private projects: Project[];
+  private projects: ProjectInformation[];
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
   }
 
   ngOnInit() {
+    this.username = localStorage.getItem('username');
+
     // TODO load projects of user from backend
     this.projects = [
       {
-        projectName: 'sandros-project',
-        displayName: 'Sandro\'s Project'
+        generalInformation: {
+          projectName: 'sandros-project',
+          displayName: 'Sandro\'s Project',
+          projectOwnerName: 'Sandro'
+        },
+        imsInformation: {
+          imsURL: 'github.com/sandros-project',
+          imsProviderType: 'GitHub',
+          imsOwnerName: 'Sandro'
+        },
+        rsInformation: {
+          rsURL: 'github.com/sandros-project',
+          rsProviderType: 'GitHub',
+          rsOwnerName: 'Sandro'
+        }
       },
       {
-        projectName: 'pse',
-        displayName: 'PSE'
+        generalInformation: {
+          projectName: 'pse',
+          displayName: 'PSE',
+          projectOwnerName: 'Sandro'
+        },
+        imsInformation: {
+          imsURL: 'github.com/pse',
+          imsProviderType: 'GitHub',
+          imsOwnerName: 'Sandro'
+        },
+        rsInformation: {
+          rsURL: 'github.com/pse',
+          rsProviderType: 'GitHub',
+          rsOwnerName: 'Sandro'
+        }
       },
       {
-        projectName: 'pizza-calculator',
-        displayName: 'PizzaCalculator'
+        generalInformation: {
+          projectName: 'pizza-calculator',
+          displayName: 'PizzaCalculator',
+          projectOwnerName: 'Sandro'
+        },
+        imsInformation: {
+          imsURL: 'github.com/pizza-calculator',
+          imsProviderType: 'GitHub',
+          imsOwnerName: 'Sandro'
+        },
+        rsInformation: {
+          rsURL: 'github.com/pizza-calculator',
+          rsProviderType: 'GitHub',
+          rsOwnerName: 'Sandro'
+        }
       }
     ];
   }
@@ -36,28 +80,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  private addNewProject(): void {
-    // TODO Open dialog and ask user for project information
-    // TODO Check project information and throw error if necessary
-    // TODO create new project and send it to backend
-    const project: Project = {
-      projectName: 'some-project-name',
-      displayName: 'Some project name'
-    };
+  onCreateProjectDialog(): void {
+    const createProjectDialog = this.dialog.open(CreateProjectDialogComponent);
+
+    createProjectDialog.afterClosed().subscribe(projectInformation => {
+      // TODO create project and add to sidenav
+      if (projectInformation) {
+        this.addNewProject(projectInformation);
+      }
+    });
+  }
+
+  private addNewProject(projectInformation: ProjectInformation): void {
+    const project: ProjectInformation = projectInformation;
+    project.generalInformation.projectOwnerName = this.username;
+    // TODO send 'project' it to backend
     // TODO if backend answeres with 201 add to projects, otherwise throw an error
     this.projects.push(project);
   }
 
-  private setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
+  protected setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
     this.projects.forEach((project) => {
-      if (project.projectName === projectName) {
+      if (project.generalInformation.projectName === projectName) {
         this.currentProject = project;
       }
     });
     this.openSidenavContent = sidenavContentComponent;
   }
 
-  private logout(): void {
+  protected logout(): void {
+    localStorage.removeItem('username');
     localStorage.removeItem('token'); // TODO implement correctly
+  }
+  protected getProjects(): ProjectInformation[] {
+    return this.projects;
+  }
+
+  protected getOpenSidenavContent(): string {
+    return this.openSidenavContent;
+  }
+
+  protected getCurrentProject(): ProjectInformation {
+    return this.currentProject;
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Project } from '../types/types-interfaces';
+import { Project, ProjectComponent } from '../types/types-interfaces';
 
 @Component({
   selector: 'app-issue-list',
@@ -9,12 +9,37 @@ import { Project } from '../types/types-interfaces';
 export class IssueListComponent implements OnInit {
   @Input()
   private project: Project;
+  private components: ProjectComponent[];
 
   constructor() {
   }
 
   ngOnInit() {
-    console.log(`Issue List: current chosen project ${this.project.displayName}`);
+    this.components = [
+      {
+        componentName: 'shopping-cart-service',
+        interfaces: []
+      },
+      {
+        componentName: 'order-service',
+        interfaces: []
+      },
+      {
+        componentName: 'shipping-service',
+        interfaces: []
+      },
+      {
+        componentName: 'payment-service',
+        interfaces: []
+      }
+    ];
   }
 
+  protected getProject(): Project {
+    return this.project;
+  }
+
+  protected getComponents(): ProjectComponent[] {
+    return this.components;
+  }
 }

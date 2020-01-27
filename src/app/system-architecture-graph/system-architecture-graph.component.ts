@@ -45,31 +45,32 @@ export class SystemArchitectureGraphComponent implements OnInit {
     this.systemArchitectureGraphEdges = [
       {
         componentName: 'shopping-cart-service',
-        edgesToInterfaces: [ 'order-service-interface' ],
+        edgesToInterfaces: ['order-service-interface'],
         edgesToComponents: []
       },
       {
         componentName: 'order-service',
-        edgesToInterfaces: [ 'payment-service-interface' ],
+        edgesToInterfaces: ['payment-service-interface'],
         edgesToComponents: []
       },
       {
         componentName: 'order-service',
-        edgesToInterfaces: [ 'shipping-service-interface' ],
+        edgesToInterfaces: ['shipping-service-interface'],
         edgesToComponents: []
       },
       {
         componentName: 'shipping-service',
-        edgesToInterfaces: [ 'payment-service-interface' ],
+        edgesToInterfaces: ['payment-service-interface'],
         edgesToComponents: []
       }
     ];
   }
 
-  openCreateComponentDialog() {
+  protected openCreateComponentDialog(): void {
     const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
 
     createComponentDialog.afterClosed().subscribe(componentInformation => {
+      // TODO add component to project, update graph and backend
       if (componentInformation) {
         console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
       }

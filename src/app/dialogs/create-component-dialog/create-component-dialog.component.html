@@ -1,8 +1,8 @@
 <h2 mat-dialog-title>Create Component</h2>
 <mat-dialog-content class="mat-typography">
   <mat-vertical-stepper linear #stepper>
-    <mat-step [stepControl]="generalInformation" errorMessage="General information is not valid.">
-      <form [formGroup]="generalInformation">
+    <mat-step [stepControl]="this.getGeneralInformation()" errorMessage="General information is not valid.">
+      <form [formGroup]="this.getGeneralInformation()">
         <ng-template matStepLabel>Fill out general information</ng-template>
         <div>
           <mat-form-field appearance="standard" class="max-length">
@@ -18,12 +18,12 @@
           </mat-form-field>
         </div>
         <div>
-          <button mat-button matStepperNext [disabled]="!generalInformation?.valid">Next</button>
+          <button mat-button matStepperNext [disabled]="!this.getGeneralInformation()?.valid">Next</button>
         </div>
       </form>
     </mat-step>
-    <mat-step [stepControl]="imsInformation" errorMessage="Issue Management System information is not valid.">
-      <form [formGroup]="imsInformation">
+    <mat-step [stepControl]="this.getIMSInformation()" errorMessage="Issue Management System information is not valid.">
+      <form [formGroup]="this.getIMSInformation()">
         <ng-template matStepLabel>Fill out component's issue management system</ng-template>
         <div>
           <mat-form-field appearance="standard">
@@ -50,12 +50,12 @@
         </div>
         <div>
           <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext [disabled]="!imsInformation?.valid">Next</button>
+          <button mat-button matStepperNext [disabled]="!this.getIMSInformation()?.valid">Next</button>
         </div>
       </form>
     </mat-step>
-    <mat-step [stepControl]="rsInformation" errorMessage="Repository System information is not valid.">
-      <form [formGroup]="rsInformation">
+    <mat-step [stepControl]="this.getRSInformation()" errorMessage="Repository System information is not valid.">
+      <form [formGroup]="this.getRSInformation()">
         <ng-template matStepLabel>Fill out component's repository system</ng-template>
         <div>
           <mat-form-field appearance="standard">
@@ -91,6 +91,6 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="getComponentInformation()"
-    [disabled]="!generalInformation?.valid || !imsInformation?.valid || !rsInformation?.valid">Create</button>
+  <button mat-button [mat-dialog-close]="this.getComponentInformation()"
+    [disabled]="!this.getGeneralInformation()?.valid || !this.getIMSInformation()?.valid || !this.getRSInformation()?.valid">Create</button>
 </mat-dialog-actions>

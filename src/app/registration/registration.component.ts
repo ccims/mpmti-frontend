@@ -50,7 +50,7 @@ export class RegistrationComponent implements OnInit {
     });
   }
 
-  register() {
+  protected register(): void {
     const username: string = this.registerData.controls.username.value;
     const email: string = this.registerData.controls.email.value;
     const password: string = this.registerData.controls.password.value;
@@ -58,6 +58,10 @@ export class RegistrationComponent implements OnInit {
 
     // TODO implement
     this.router.navigate(['login']);
+  }
+
+  protected getRegisterData(): FormGroup {
+    return this.registerData;
   }
 }
 

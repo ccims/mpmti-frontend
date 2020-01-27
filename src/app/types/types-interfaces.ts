@@ -28,6 +28,25 @@ export interface Project {
     projectName: string;
     displayName: string;
 }
+
+export interface ProjectInformation {
+    generalInformation: {
+        projectName: string,
+        displayName: string,
+        projectOwnerName: string
+    };
+    imsInformation: {
+        imsURL: string,
+        imsProviderType: string,
+        imsOwnerName: string
+    };
+    rsInformation: {
+        rsURL: string,
+        rsProviderType: string,
+        rsOwnerName: string
+    };
+}
+
 export interface ProjectComponentInformation {
     generalInformation: {
         componentName: string,

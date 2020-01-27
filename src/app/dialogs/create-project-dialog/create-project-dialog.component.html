@@ -1,0 +1,97 @@
+<h2 mat-dialog-title>Create Project</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-vertical-stepper linear #stepper>
+        <mat-step [stepControl]="this.getGeneralInformation()" errorMessage="General information is not valid.">
+            <form [formGroup]="this.getGeneralInformation()">
+                <ng-template matStepLabel>Fill out general information</ng-template>
+                <div>
+                    <mat-form-field appearance="standard" class="max-length">
+                        <mat-label>Unique project name</mat-label>
+                        <input matInput type="text" title="Project's name" formControlName="projectName" cdkFocusInitial
+                            required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>Display name</mat-label>
+                        <input matInput type="text" formControlName="displayName" required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperNext [disabled]="!this.getGeneralInformation()?.valid">Next</button>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step [stepControl]="this.getIMSInformation()"
+            errorMessage="Issue Management System information is not valid.">
+            <form [formGroup]="this.getIMSInformation()">
+                <ng-template matStepLabel>Fill out project's issue management system</ng-template>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>URL</mat-label>
+                        <input matInput type="URL" name="url" formControlName="imsURL" cdkFocusInitial required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field>
+                        <mat-label>Provider Type</mat-label>
+                        <mat-select formControlName="imsProviderType" required>
+                            <mat-option value="GitHub">GitHub</mat-option>
+                            <mat-option value="Gitlab">Gitlab</mat-option>
+                            <mat-option value="Redmine">Redmine</mat-option>
+                            <mat-option value="Jira">Jira</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>Owner</mat-label>
+                        <input matInput type="text" formControlName="imsOwnerName" required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-button matStepperNext [disabled]="!this.getIMSInformation()?.valid">Next</button>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step [stepControl]="this.getRSInformation()" errorMessage="Repository System information is not valid.">
+            <form [formGroup]="this.getRSInformation()">
+                <ng-template matStepLabel>Fill out project's repository system</ng-template>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>URL</mat-label>
+                        <input matInput type="URL" name="url" formControlName="rsURL" cdkFocusInitial required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field>
+                        <mat-label>Provider Type</mat-label>
+                        <mat-select formControlName="rsProviderType" required>
+                            <mat-option value="GitHub">GitHub</mat-option>
+                            <mat-option value="Gitlab">Gitlab</mat-option>
+                            <mat-option value="Redmine">Redmine</mat-option>
+                            <mat-option value="Jira">Jira</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>Owner</mat-label>
+                        <input matInput type="text" formControlName="rsOwnerName" required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-button (click)="stepper.reset()">Reset</button>
+                </div>
+            </form>
+        </mat-step>
+    </mat-vertical-stepper>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button [mat-dialog-close]="this.getProjectInformation()"
+        [disabled]="!this.getGeneralInformation()?.valid || !this.getIMSInformation()?.valid || !this.getRSInformation()?.valid">Create</button>
+</mat-dialog-actions>

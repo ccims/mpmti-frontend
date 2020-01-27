@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  login(): void {
+  protected login(): void {
     this.username = this.loginData.controls.username.value;
     this.password = this.loginData.controls.password.value;
     console.log(`Username: ${this.username}, Password: ${this.password}`);
@@ -50,11 +50,16 @@ export class LoginComponent implements OnInit {
     //     localStorage.setItem('token', token.token);
     //     localStorage.setItem('username', this.username);
     localStorage.setItem('token', 'test-token');
+    localStorage.setItem('username', this.username);
     this.router.navigate(['dashboard']);
     //   } else {
     //     alert('Invalid credentials');
     //   }
     // });
+  }
+
+  protected getLoginData(): FormGroup {
+    return this.loginData;
   }
 
 }

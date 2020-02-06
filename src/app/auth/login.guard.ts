@@ -4,19 +4,19 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../api/api.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class LoginGuard implements CanActivate {
 
-  constructor(public auth: ApiService, public router: Router) {}
+    constructor(public auth: ApiService, public router: Router) { }
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      if (!this.auth.isAuthenticated()) {
-        this.router.navigate(['login']);
-        return false;
-      }
-      return true;
-  }
+    canActivate(
+        next: ActivatedRouteSnapshot,
+        state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+        if (!this.auth.isAuthenticated()) {
+            this.router.navigate(['login']);
+            return false;
+        }
+        return true;
+    }
 }

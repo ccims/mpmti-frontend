@@ -3,24 +3,20 @@ import {
     MatNativeDateModule, MatIconModule,
     MatButtonModule, MatCheckboxModule, MatToolbarModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatRadioModule, MatListModule,
+    MatStepperModule, MatDialogModule, MatSelectModule, MatSlideToggleModule,
+    MatTabsModule, MatTooltipModule, MatExpansionModule, MatSidenavModule,
+    MatDatepickerModule, MatDividerModule
 } from '@angular/material';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { FormsModule } from '@angular/forms';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDialogModule } from '@angular/material/dialog';
-import {MatStepperModule} from '@angular/material/stepper';
+
 
 @NgModule({
     imports: [MatNativeDateModule, MatDatepickerModule, MatIconModule,
         MatButtonModule, MatCheckboxModule, MatToolbarModule, FormsModule,
         MatCardModule, MatFormFieldModule, MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
-        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule
+        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule,
+        MatDividerModule
     ],
 
     exports: [MatNativeDateModule, FormsModule,
@@ -28,7 +24,8 @@ import {MatStepperModule} from '@angular/material/stepper';
         MatCheckboxModule, MatToolbarModule, MatCardModule, MatFormFieldModule,
         MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
-        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule
+        MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule,
+        MatDividerModule
     ],
 
 })

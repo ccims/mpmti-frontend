@@ -13,12 +13,11 @@
     width: -webkit-fill-available !important;
 }
 
-.create-component-accordion .mat-expansion-panel-header-title,
-.create-component-accordion .mat-expansion-panel-header-description {
-  flex-basis: 0;
+.create-component-accordion .mat-expansion-panel-header-title, .create-component-accordion .mat-expansion-panel-header-description {
+    flex-basis: 0;
 }
 
 .create-component-accordion .mat-expansion-panel-header-description {
-  justify-content: space-between;
-  align-items: center;
+    justify-content: space-between;
+    align-items: center;
 }

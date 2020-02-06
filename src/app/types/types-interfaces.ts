@@ -33,34 +33,34 @@ export interface ProjectInformation {
     generalInformation: {
         projectName: string,
         displayName: string,
-        projectOwnerName: string
+        projectOwnerName: string;
     };
     imsInformation: {
         imsURL: string,
         imsProviderType: string,
-        imsOwnerName: string
+        imsOwnerName: string;
     };
     rsInformation: {
         rsURL: string,
         rsProviderType: string,
-        rsOwnerName: string
+        rsOwnerName: string;
     };
 }
 
 export interface ProjectComponentInformation {
     generalInformation: {
         componentName: string,
-        componentOwnerName: string
+        componentOwnerName: string;
     };
     imsInformation: {
         imsURL: string,
         imsProviderType: string,
-        imsOwnerName: string
+        imsOwnerName: string;
     };
     rsInformation: {
         rsURL: string,
         rsProviderType: string,
-        rsOwnerName: string
+        rsOwnerName: string;
     };
 }
 

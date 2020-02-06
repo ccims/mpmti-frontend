@@ -8,17 +8,17 @@ import { AccountComponent } from './account/account.component';
 import { LoginGuard } from './auth/login.guard';
 
 const routes: Routes = [
-  { path: '', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [LoginGuard]},
-  { path: 'register', component: RegistrationComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard] },
-  { path: 'account', component: AccountComponent, canActivate: [LoginGuard] },
-  { path: '**', redirectTo: '' }
+    { path: '', component: LoginComponent },
+    { path: 'dashboard', component: DashboardComponent, canActivate: [LoginGuard] },
+    { path: 'register', component: RegistrationComponent },
+    { path: 'login', component: LoginComponent },
+    { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard] },
+    { path: 'account', component: AccountComponent, canActivate: [LoginGuard] },
+    { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
 })
 export class AppRoutingModule { }

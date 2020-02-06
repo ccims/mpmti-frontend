@@ -1,1 +1,25 @@
-<p>project-overview works!</p>
+<mat-tab-group>
+    <mat-tab>
+        <ng-template mat-tab-label> Information </ng-template>
+        <ng-template matTabContent>
+            <app-project-information [project]="this.getProject()"></app-project-information>
+        </ng-template>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">group</mat-icon>
+            People
+        </ng-template>
+        <ng-template matTabContent>
+            This works as well
+        </ng-template>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            Monitoring Systems
+        </ng-template>
+        <ng-template matTabContent>
+            Here is some space for the student development project.
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>

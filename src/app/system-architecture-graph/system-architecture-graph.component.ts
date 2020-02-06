@@ -4,76 +4,76 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateComponentDialogComponent } from '../dialogs/create-component-dialog/create-component-dialog.component';
 
 @Component({
-  selector: 'app-system-architecture-graph',
-  templateUrl: './system-architecture-graph.component.html',
-  styleUrls: ['./system-architecture-graph.component.css']
+    selector: 'app-system-architecture-graph',
+    templateUrl: './system-architecture-graph.component.html',
+    styleUrls: ['./system-architecture-graph.component.css']
 })
 export class SystemArchitectureGraphComponent implements OnInit {
 
-  @Input()
-  private project: Project;
-  private components: ProjectComponent[]; // TODO ask backend for list of project's components
-  private componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
-  private systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
+    @Input()
+    private project: Project;
+    private components: ProjectComponent[]; // TODO ask backend for list of project's components
+    private componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
+    private systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
 
-  constructor(public dialog: MatDialog) { }
+    constructor(public dialog: MatDialog) { }
 
-  ngOnInit() {
-    this.components = [
-      {
-        componentName: 'shopping-cart-service',
-        interfaces: []
-      },
-      {
-        componentName: 'order-service',
-        interfaces: []
-      },
-      {
-        componentName: 'shipping-service',
-        interfaces: []
-      },
-      {
-        componentName: 'payment-service',
-        interfaces: []
-      }
-    ];
-    this.componentInterfaces = [
-      { interfaceName: 'order-service-interface' },
-      { interfaceName: 'shipping-service-interface' },
-      { interfaceName: 'payment-service-interface' }
-    ];
-    this.systemArchitectureGraphEdges = [
-      {
-        componentName: 'shopping-cart-service',
-        edgesToInterfaces: ['order-service-interface'],
-        edgesToComponents: []
-      },
-      {
-        componentName: 'order-service',
-        edgesToInterfaces: ['payment-service-interface'],
-        edgesToComponents: []
-      },
-      {
-        componentName: 'order-service',
-        edgesToInterfaces: ['shipping-service-interface'],
-        edgesToComponents: []
-      },
-      {
-        componentName: 'shipping-service',
-        edgesToInterfaces: ['payment-service-interface'],
-        edgesToComponents: []
-      }
-    ];
-  }
+    ngOnInit() {
+        this.components = [
+            {
+                componentName: 'shopping-cart-service',
+                interfaces: []
+            },
+            {
+                componentName: 'order-service',
+                interfaces: []
+            },
+            {
+                componentName: 'shipping-service',
+                interfaces: []
+            },
+            {
+                componentName: 'payment-service',
+                interfaces: []
+            }
+        ];
+        this.componentInterfaces = [
+            { interfaceName: 'order-service-interface' },
+            { interfaceName: 'shipping-service-interface' },
+            { interfaceName: 'payment-service-interface' }
+        ];
+        this.systemArchitectureGraphEdges = [
+            {
+                componentName: 'shopping-cart-service',
+                edgesToInterfaces: ['order-service-interface'],
+                edgesToComponents: []
+            },
+            {
+                componentName: 'order-service',
+                edgesToInterfaces: ['payment-service-interface'],
+                edgesToComponents: []
+            },
+            {
+                componentName: 'order-service',
+                edgesToInterfaces: ['shipping-service-interface'],
+                edgesToComponents: []
+            },
+            {
+                componentName: 'shipping-service',
+                edgesToInterfaces: ['payment-service-interface'],
+                edgesToComponents: []
+            }
+        ];
+    }
 
-  protected openCreateComponentDialog(): void {
-    const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
+    protected openCreateComponentDialog(): void {
+        const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
 
-    createComponentDialog.afterClosed().subscribe(componentInformation => {
-      // TODO add component to project, update graph and backend
-      if (componentInformation) {
-        console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
-      }
-    });
-  }
+        createComponentDialog.afterClosed().subscribe(componentInformation => {
+            // TODO add component to project, update graph and backend
+            if (componentInformation) {
+                console.log(`Dialog result: ${componentInformation.generalInformation.componentName}`);
+            }
+        });
+    }
 }

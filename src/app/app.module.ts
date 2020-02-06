@@ -20,35 +20,37 @@ import { ApiService } from './api/api.service';
 import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { CreateComponentDialogComponent } from './dialogs/create-component-dialog/create-component-dialog.component';
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
+import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
 
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoginComponent,
-    RegistrationComponent,
-    DashboardComponent,
-    SettingsComponent,
-    AccountComponent,
-    ToolbarComponent,
-    ProjectOverviewComponent,
-    ProjectIssuesComponent,
-    SystemArchitectureGraphComponent,
-    IssueListComponent,
-    CreateComponentDialogComponent,
-    CreateProjectDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MaterialModule,
-    FormsModule, ReactiveFormsModule
-  ],
-  entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent],
-  providers: [
-    ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        LoginComponent,
+        RegistrationComponent,
+        DashboardComponent,
+        SettingsComponent,
+        AccountComponent,
+        ToolbarComponent,
+        ProjectOverviewComponent,
+        ProjectIssuesComponent,
+        SystemArchitectureGraphComponent,
+        IssueListComponent,
+        CreateComponentDialogComponent,
+        CreateProjectDialogComponent,
+        ProjectInformationComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MaterialModule,
+        FormsModule, ReactiveFormsModule
+    ],
+    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent],
+    providers: [
+        ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

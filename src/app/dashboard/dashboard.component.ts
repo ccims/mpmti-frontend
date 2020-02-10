@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Project, ProjectInformation } from '../types/types-interfaces';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/create-project-dialog.component';
 
 @Component({

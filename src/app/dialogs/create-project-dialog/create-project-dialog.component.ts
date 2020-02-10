@@ -20,7 +20,7 @@ export class CreateProjectDialogComponent implements OnInit {
         this.setRSInformation();
         this.getProjectInformation();
     }
-    protected getProjectInformation(): ProjectInformation {
+    public getProjectInformation(): ProjectInformation {
         return {
             generalInformation: {
                 projectName: this.generalInformation.controls.projectName.value,
@@ -91,15 +91,15 @@ export class CreateProjectDialogComponent implements OnInit {
         });
     }
 
-    protected getGeneralInformation(): FormGroup {
+    public getGeneralInformation(): FormGroup {
         return this.generalInformation;
     }
 
-    protected getIMSInformation(): FormGroup {
+    public getIMSInformation(): FormGroup {
         return this.imsInformation;
     }
 
-    protected getRSInformation(): FormGroup {
+    public getRSInformation(): FormGroup {
         return this.rsInformation;
     }
 }

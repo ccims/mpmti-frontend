@@ -66,7 +66,7 @@ export class SystemArchitectureGraphComponent implements OnInit {
         ];
     }
 
-    protected openCreateComponentDialog(): void {
+    public openCreateComponentDialog(): void {
         const createComponentDialog = this.dialog.open(CreateComponentDialogComponent);
 
         createComponentDialog.afterClosed().subscribe(componentInformation => {

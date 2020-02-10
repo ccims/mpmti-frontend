@@ -35,11 +35,11 @@ export class IssueListComponent implements OnInit {
         ];
     }
 
-    protected getProject(): Project {
+    public getProject(): Project {
         return this.project;
     }
 
-    protected getComponents(): ProjectComponent[] {
+    public getComponents(): ProjectComponent[] {
         return this.components;
     }
 }

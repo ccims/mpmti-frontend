@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
         });
     }
 
-    protected login(): void {
+    public login(): void {
         this.username = this.loginData.controls.username.value;
         this.password = this.loginData.controls.password.value;
         console.log(`Username: ${this.username}, Password: ${this.password}`);
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
         // });
     }
 
-    protected getLoginData(): FormGroup {
+    public getLoginData(): FormGroup {
         return this.loginData;
     }
 

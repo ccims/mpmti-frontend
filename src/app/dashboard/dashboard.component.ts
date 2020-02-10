@@ -99,7 +99,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.projects.push(project);
     }
 
-    protected setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
+    public setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
         this.projects.forEach((project) => {
             if (project.generalInformation.projectName === projectName) {
                 this.currentProject = project;
@@ -108,19 +108,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.openSidenavContent = sidenavContentComponent;
     }
 
-    protected logout(): void {
+    public logout(): void {
         localStorage.removeItem('username');
         localStorage.removeItem('token'); // TODO implement correctly
     }
-    protected getProjects(): ProjectInformation[] {
+    public getProjects(): ProjectInformation[] {
         return this.projects;
     }
 
-    protected getOpenSidenavContent(): string {
+    public getOpenSidenavContent(): string {
         return this.openSidenavContent;
     }
 
-    protected getCurrentProject(): ProjectInformation {
+    public getCurrentProject(): ProjectInformation {
         return this.currentProject;
     }
 }

@@ -82,7 +82,7 @@ export class CreateComponentDialogComponent implements OnInit {
         });
     }
 
-    protected getComponentInformation(): ProjectComponentInformation {
+    public getComponentInformation(): ProjectComponentInformation {
         return {
             generalInformation: {
                 componentName: this.generalInformation.controls.componentName.value,
@@ -101,15 +101,15 @@ export class CreateComponentDialogComponent implements OnInit {
         };
     }
 
-    protected getGeneralInformation(): FormGroup {
+    public getGeneralInformation(): FormGroup {
         return this.generalInformation;
     }
 
-    protected getIMSInformation(): FormGroup {
+    public getIMSInformation(): FormGroup {
         return this.imsInformation;
     }
 
-    protected getRSInformation(): FormGroup {
+    public getRSInformation(): FormGroup {
         return this.rsInformation;
     }
 }

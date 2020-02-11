@@ -21,6 +21,7 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { CreateComponentDialogComponent } from './dialogs/create-component-dialog/create-component-dialog.component';
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
 import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
+import { GraphsModule } from './graphs/graphs.module';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { ProjectInformationComponent } from './dashboard/overview/project-inform
         ProjectInformationComponent
     ],
     imports: [
+        GraphsModule,
         BrowserModule,
         AppRoutingModule,
         BrowserAnimationsModule,

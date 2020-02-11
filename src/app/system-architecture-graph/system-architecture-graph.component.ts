@@ -12,9 +12,9 @@ export class SystemArchitectureGraphComponent implements OnInit {
 
     @Input()
     private project: Project;
-    private components: ProjectComponent[]; // TODO ask backend for list of project's components
-    private componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
-    private systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
+    components: ProjectComponent[]; // TODO ask backend for list of project's components
+    componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
+    systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
 
     constructor(public dialog: MatDialog) { }
 

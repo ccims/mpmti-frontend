@@ -11,7 +11,7 @@ import { ProjectComponent, ProjectComponentInterface, SystemArchitectureEdgeList
 })
 export class IssueGraphComponent implements OnChanges, OnInit {
 
-    @ViewChild('graph', {static: true}) graph;
+    @ViewChild('graph', { static: true }) graph;
 
     @Input() components: ProjectComponent[];
     @Input() componentInterfaces: ProjectComponentInterface[];
@@ -57,23 +57,23 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         this.systemArchitectureGraphEdges.forEach(graphEdges => {
             graphEdges.edgesToInterfaces.forEach(toInterface => {
                 edges.push({
-                    source: graphEdges.componentName,
+                    source: graphEdges.componentUuid,
                     target: toInterface,
                     type: 'interface-connect',
                     markerEnd: {
                         template: 'arrow',
-                        rotate: {relativeAngle: 0},
+                        rotate: { relativeAngle: 0 },
                     }
                 });
             });
             graphEdges.edgesToComponents.forEach(toComponent => {
                 edges.push({
-                    source: graphEdges.componentName,
+                    source: graphEdges.componentUuid,
                     target: toComponent,
                     type: 'component-connect',
                     markerEnd: {
                         template: 'arrow',
-                        rotate: {relativeAngle: 0},
+                        rotate: { relativeAngle: 0 },
                     }
                 });
             });

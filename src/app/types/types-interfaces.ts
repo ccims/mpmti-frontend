@@ -66,15 +66,17 @@ export interface ProjectComponentInformation {
 
 export interface ProjectComponent {
     componentName: string;
+    uuid: string;
     interfaces: ProjectComponentInterface[];
 }
 
 export interface ProjectComponentInterface {
     interfaceName: string;
+    uuid: string;
 }
 
 export interface SystemArchitectureEdgeListNode {
-    componentName: string;
+    componentUuid: string;
     edgesToInterfaces: string[];
     edgesToComponents: string[];
 }

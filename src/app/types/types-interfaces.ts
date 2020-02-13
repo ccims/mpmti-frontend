@@ -1,3 +1,5 @@
+import { Issue } from '../model/issue';
+
 export interface Token {
     token: string;
 }
@@ -79,4 +81,30 @@ export interface SystemArchitectureEdgeListNode {
     componentUuid: string;
     edgesToInterfaces: string[];
     edgesToComponents: string[];
+}
+
+export interface IssueLink {
+    issueID: string;
+    relation: IssueRelation;
+}
+
+export interface Label {
+    name: string;
+}
+
+export interface IssueLocation {
+    componentID: string;
+    interfaceID?: string;
+}
+
+export interface IssueComment {
+    comment: string;
+    annotator: string;
+}
+
+export enum IssueRelation {
+    RELATED_TO, DUPLICATES, DEPENDS
+}
+export enum IssueType {
+    BUG, FEATURE_REQUEST, UNCLASSIFIED
 }

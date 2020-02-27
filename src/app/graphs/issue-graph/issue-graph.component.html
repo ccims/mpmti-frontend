@@ -1,41 +1,91 @@
-<network-graph mode="layout" classes="component interface issue bug done" #graph>
-    <style slot="style">
-        svg {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-    <svg slot="graph">
-        <style>
-            .ghost {opacity: 0.5;}
-            .link-handle {display: none; fill: black; opacity: 0.1;}
-            .link-handle>* {transition:transform 0.25s ease-out;}
-            .edge-group .link-handle {display: initial}
-            .link-handle:hover {opacity: 0.7;}
-            .link-handle:hover>* {transform: scale(1.5);}
-            .text {fill: black; font-size: 6pt; text-overflow: ellipsis; word-break: break-word}
-            .text.title {font-size: initial; text-overflow: clip; word-break: break-word;}
-            .hovered .link-handle {display: initial;}
-            .node.component rect {fill: azure; stroke: black; stroke-width: 2;}
+<div class="graph-container">
+    <network-graph class="graph" mode="layout" classes="component interface issue bug done" #graph>
+        <style slot="style">
+            svg {
+                width: 100%;
+                height: 100%;
+            }
         </style>
-        <defs class="templates">
-            <g id="component" data-template-type="node">
-                <rect width="100" height="60" x="-50" y="-30" data-link-handles="edges"></rect>
-                <text class="title text" data-content="title" data-click="title" x="-40" y="-10" width="80"></text>
-                <text class="text" data-content="description" x="-40" y="5" width="80" height="30"></text>
+        <svg slot="graph">
+            <style>
+                .ghost {opacity: 0.5;}
+                .link-handle {display: none; fill: black; opacity: 0.1;}
+                .link-handle>* {transition:transform 0.25s ease-out;}
+                .edge-group .link-handle {display: initial}
+                .link-handle:hover {opacity: 0.7;}
+                .link-handle:hover>* {transform: scale(1.5);}
+                .text {fill: black; font-size: 6pt; text-overflow: ellipsis; word-break: break-word}
+                .text.title {font-size: initial; text-overflow: clip; word-break: break-word;}
+                .hovered:not(.interface) .link-handle {display: initial;}
+                .node.component rect {fill: azure; stroke: black; stroke-width: 2;}
+            </style>
+            <defs class="templates">
+                <g id="component" data-template-type="node">
+                    <rect width="100" height="60" x="-50" y="-30" data-link-handles="edges"></rect>
+                    <text class="title text" data-content="title" data-click="title" x="-40" y="-10" width="80"></text>
+                    <text class="text" data-content="description" x="-40" y="5" width="80" height="30"></text>
+                </g>
+                <g id="interface" data-template-type="node">
+                    <circle cx="0" cy="0" r="7"></circle>
+                </g>
+                <g id="issue" data-template-type="node">
+                    <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
+                </g>
+                <g id="bug" data-template-type="node">
+                    <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
+                </g>
+                <g id="arrow" data-template-type="marker" data-line-attachement-point="-9 0">
+                    <path d="M -9 -4 L 0 0 L -9 4 z" />
+                </g>
+                <g id="interface-connector" data-template-type="marker" data-line-attachement-point="-1 0">
+                    <path d="M 7 -8 a8,8 0 0,0 0,16 l 0,1 a9,9 0 0,1 0,-18 z" />
+                </g>
+            </defs>
+        </svg>
+    </network-graph>
+
+    <network-graph class="minimap" mode="display" classes="component interface issue bug done" #minimap>
+        <style slot="style">
+            svg {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+        <svg slot="graph">
+            <style>
+                .view-box {fill: orange; opacity: 0.5;}
+                .link-handle {display: none;}
+                .text {fill: black; font-size: 6pt; text-overflow: ellipsis; word-break: break-word}
+                .text.title {font-size: initial; text-overflow: clip; word-break: break-word;}
+                .node.component rect {fill: azure; stroke: black; stroke-width: 2;}
+            </style>
+            <defs class="templates">
+                <g id="component" data-template-type="node">
+                    <rect width="100" height="60" x="-50" y="-30" data-link-handles="edges"></rect>
+                </g>
+                <g id="interface" data-template-type="node">
+                    <circle cx="0" cy="0" r="7"></circle>
+                </g>
+                <g id="issue" data-template-type="node">
+                    <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
+                </g>
+                <g id="bug" data-template-type="node">
+                    <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
+                </g>
+                <g id="arrow" data-template-type="marker" data-line-attachement-point="-9 0">
+                    <path d="M -9 -4 L 0 0 L -9 4 z" />
+                </g>
+                <g id="interface-connector" data-template-type="marker" data-line-attachement-point="-1 0">
+                    <path d="M 7 -8 a8,8 0 0,0 0,16 l 0,1 a9,9 0 0,1 0,-18 z" />
+                </g>
+            </defs>
+            <g class="zoom-group">
+                <g class="edges"></g>
+                <g class="nodes"></g>
+                <rect class="view-box" [attr.x]="currentVisibleArea?.x" [attr.y]="currentVisibleArea?.y" [attr.width]="currentVisibleArea?.width" [attr.height]="currentVisibleArea?.height">
+
+                </rect>
             </g>
-            <g id="interface" data-template-type="node">
-                <circle cx="0" cy="0" r="7"></circle>
-            </g>
-            <g id="issue" data-template-type="node">
-                <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
-            </g>
-            <g id="bug" data-template-type="node">
-                <rect width="30" height="30" x="-15" y="-15" data-link-handles="edges"></rect>
-            </g>
-            <g id="arrow" data-template-type="marker" data-line-attachement-point="-9 0">
-                <path d="M -9 -4 L 0 0 L -9 4 z" />
-            </g>
-        </defs>
-    </svg>
-</network-graph>
+        </svg>
+    </network-graph>
+</div>

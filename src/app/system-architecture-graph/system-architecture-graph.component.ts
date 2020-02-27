@@ -18,7 +18,6 @@ export class SystemArchitectureGraphComponent implements OnInit {
     @Input()
     project: Project;
     components: ProjectComponent[]; // TODO ask backend for list of project's components
-    componentInterfaces: ProjectComponentInterface[]; // TODO ask backend for list of project's component interfaces
     systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
     issues: Issue[]; // TODO ask backend for issue list
     private readonly UUID_NAMESPACE: string = '005640e5-a15f-475e-b95f-73ef41c611fa';
@@ -117,7 +116,6 @@ export class SystemArchitectureGraphComponent implements OnInit {
                 { componentID: Uuid('shipping-service', this.UUID_NAMESPACE) }
             ], []),
         ];
-        this.componentInterfaces = []; // TODO delete after adjust graph editor
     }
 
     public openCreateComponentDialog(): void {

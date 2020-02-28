@@ -4,7 +4,7 @@ import * as Uuid from 'uuid/v5';
 const UUID_NAMESPACE: string = '005640e5-a15f-475e-b95f-73ef41c611fa';
 
 export class Issue {
-    private id: string;
+    readonly id: string;
     private title: string;
     private textBody: string;
     private isOpen: boolean;

@@ -2,7 +2,7 @@ import { Component, ViewChild, Input, OnChanges, OnInit, SimpleChanges } from '@
 import GraphEditor from '@ustutt/grapheditor-webcomponent/lib/grapheditor';
 import { Node } from '@ustutt/grapheditor-webcomponent/lib/node';
 import { Edge, Point } from '@ustutt/grapheditor-webcomponent/lib/edge';
-import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode } from 'src/app/types/types-interfaces';
+import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode, IssueType } from 'src/app/types/types-interfaces';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Issue } from 'src/app/model/issue';
@@ -127,6 +127,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                     title: comp.componentName,
                     type: 'component',
                     data: comp,
+                    relatedIssues: new Set<string>(),
                 });
                 comp.interfaces.forEach(inter => {
                     const position: Point = this.nodePositions?.[inter.uuid] ?? {x: 150, y: 0};
@@ -136,6 +137,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         title: inter.interfaceName,
                         type: 'interface',
                         data: inter,
+                        relatedIssues: new Set<string>(),
                     });
                     const edge = {
                         source: comp.uuid,
@@ -181,6 +183,10 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             });
         }
 
+        if (changes.issues != null) {
+            this.updateIssueNodes();
+        }
+
         if (needRender) {
             graph.completeRender();
             graph.zoomToBoundingBox();
@@ -216,4 +222,102 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         this.issueToGraphNode = new Map();
     }
 
+
+    private updateIssueNodes() {
+        const relatedNodesToIssues = new Map<string, Set<string>>();
+        this.issues.forEach(issue => {
+            this.issuesById.set(issue.id, issue);
+            const relatedNodes = new Set<string>();
+            issue.getLocations().forEach(loc => {
+                const relatedNode = loc.interfaceID ?? loc.componentID;
+                relatedNodes.add(relatedNode);
+                if (!relatedNodesToIssues.has(relatedNode)) {
+                    relatedNodesToIssues.set(relatedNode, new Set());
+                }
+                relatedNodesToIssues.get(relatedNode).add(issue.id);
+            });
+            this.issueToRelatedNode.set(issue.id, relatedNodes);
+        });
+
+        const graph: GraphEditor = this.graph.nativeElement;
+        const minimap: GraphEditor = this.minimap.nativeElement; // TODO remove once minimap works with events only...
+
+        relatedNodesToIssues.forEach((issueSet, nodeId) => {
+            const node = graph.getNode(nodeId);
+            node.relatedIssues = issueSet;
+            const undecided = new Set<string>();
+            const bugs = new Set<string>();
+            const features = new Set<string>();
+            issueSet.forEach(issueId => {
+                const issue = this.issuesById.get(issueId);
+                if (issue.getType() === IssueType.BUG) {
+                    bugs.add(issueId);
+                } else if (issue.getType() === IssueType.FEATURE_REQUEST) {
+                    features.add(issueId);
+                } else {
+                    undecided.add(issueId);
+                }
+            });
+            this.updateIssueGroupNode(graph, `${nodeId}__undecided`, nodeId, 'issue-undecided', undecided);
+            this.updateIssueGroupNode(graph, `${nodeId}__bug`, nodeId, 'issue-bug', bugs);
+            this.updateIssueGroupNode(graph, `${nodeId}feature`, nodeId, 'issue-feature', features);
+
+            const issueGroupNodes = [];
+            if (undecided.size > 0) {
+                issueGroupNodes.push(`${nodeId}__undecided`);
+            }
+            if (bugs.size > 0) {
+                issueGroupNodes.push(`${nodeId}__bug`);
+            }
+            if (features.size > 0) {
+                issueGroupNodes.push(`${nodeId}feature`);
+            }
+
+            this.updateIssueNodePositions(graph, nodeId, issueGroupNodes);
+            graph.completeRender();
+        });
+    }
+
+    private updateIssueGroupNode(graph: GraphEditor, nodeId: string, relatedNodeId: string, issueType: string, issueSet: Set<string>) {
+        const gm = graph.groupingManager;
+        let issueGroupNode = graph.getNode(nodeId);
+        if (issueSet.size > 0) {
+            if (issueGroupNode == null) {
+                issueGroupNode = {
+                    id: nodeId,
+                    type: issueType,
+                    x: 0,
+                    y: 0,
+                };
+                gm.addNodeToGroup(relatedNodeId, nodeId);
+                graph.addNode(issueGroupNode);
+            }
+            issueGroupNode.issues = issueSet;
+        } else {
+            if (issueGroupNode != null) {
+                gm.removeNodeFromGroup(relatedNodeId, nodeId);
+                graph.removeNode(issueGroupNode);
+            }
+        }
+    }
+
+    private updateIssueNodePositions(graph: GraphEditor, relatedNodeId: string, issueNodes: string[]) {
+        const relatedNode = graph.getNode(relatedNodeId);
+        const groupBehaviour = graph.groupingManager.getGroupBehaviourOf(relatedNodeId);
+        groupBehaviour.captureChildMovement = true;
+        groupBehaviour.moveChildrenAlongGoup = true;
+        groupBehaviour.childNodePositions = new Map();
+        let xOffset = 0;
+        const yOffset = relatedNode.type === 'interface' ? 30 : 60;
+        issueNodes.forEach(issueNodeId => {
+            groupBehaviour.childNodePositions.set(issueNodeId, {
+                x: xOffset,
+                y: yOffset,
+            });
+            const issueNode = graph.getNode(issueNodeId);
+            issueNode.x = relatedNode.x + xOffset;
+            issueNode.y = relatedNode.y + yOffset;
+            xOffset -= 20;
+        });
+    }
 }

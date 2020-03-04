@@ -260,7 +260,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             });
             this.updateIssueGroupNode(graph, `${nodeId}__undecided`, nodeId, 'issue-undecided', undecided);
             this.updateIssueGroupNode(graph, `${nodeId}__bug`, nodeId, 'issue-bug', bugs);
-            this.updateIssueGroupNode(graph, `${nodeId}feature`, nodeId, 'issue-feature', features);
+            this.updateIssueGroupNode(graph, `${nodeId}__feature`, nodeId, 'issue-feature', features);
 
             const issueGroupNodes = [];
             if (undecided.size > 0) {
@@ -270,7 +270,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                 issueGroupNodes.push(`${nodeId}__bug`);
             }
             if (features.size > 0) {
-                issueGroupNodes.push(`${nodeId}feature`);
+                issueGroupNodes.push(`${nodeId}__feature`);
             }
 
             this.updateIssueNodePositions(graph, nodeId, issueGroupNodes);
@@ -293,6 +293,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                 graph.addNode(issueGroupNode);
             }
             issueGroupNode.issues = issueSet;
+            issueGroupNode.issueCount = issueSet.size > 99 ? '99+' : issueSet.size;
         } else {
             if (issueGroupNode != null) {
                 gm.removeNodeFromGroup(relatedNodeId, nodeId);
@@ -317,7 +318,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             const issueNode = graph.getNode(issueNodeId);
             issueNode.x = relatedNode.x + xOffset;
             issueNode.y = relatedNode.y + yOffset;
-            xOffset -= 20;
+            xOffset -= 43;
         });
     }
 }

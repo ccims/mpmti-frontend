@@ -122,5 +122,8 @@
       }
     }
   },
-  "defaultProject": "mpmti-frontend"
+  "defaultProject": "mpmti-frontend",
+  "cli": {
+    "analytics": false
+  }
 }

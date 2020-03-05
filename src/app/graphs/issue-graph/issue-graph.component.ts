@@ -7,6 +7,9 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Issue } from 'src/app/model/issue';
 import { Rect } from '@ustutt/grapheditor-webcomponent/lib/util';
+import { GroupBehaviour } from '@ustutt/grapheditor-webcomponent/lib/grouping';
+import { DynamicTemplateContext, DynamicNodeTemplate } from '@ustutt/grapheditor-webcomponent/lib/dynamic-templates/dynamic-template';
+import { LinkHandle } from '@ustutt/grapheditor-webcomponent/lib/link-handle';
 
 @Component({
     selector: 'app-issue-graph',
@@ -59,6 +62,19 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         graph.setNodeClass = classSetter;
         minimap.setNodeClass = classSetter;
 
+        graph.dynamicTemplateRegistry.addDynamicTemplate('issue-group-container', {
+            renderInitialTemplate(g, grapheditor: GraphEditor, context: DynamicTemplateContext<Node>): void {
+                // template is empty
+                g.append('circle').attr('x', 0).attr('y', 0).attr('r', 1).style('opacity', 0);
+            },
+            updateTemplate(g, grapheditor: GraphEditor, context: DynamicTemplateContext<Node>): void {
+                // template is empty
+            },
+            getLinkHandles(g, grapheditor: GraphEditor): LinkHandle[] {
+                return []; // template has no link handles
+            }
+        } as DynamicNodeTemplate);
+
         graph.addEventListener('nodedragend', (event: CustomEvent) => {
             const node = event.detail.node;
             // store node positioning information
@@ -70,6 +86,9 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         });
 
         graph.addEventListener('nodeadd', (event: CustomEvent) => {
+            if (event.detail.node.type === 'issue-group-container') {
+                return;
+            }
             const node = event.detail.node;
             minimap.addNode(node);
         });
@@ -121,24 +140,28 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             needRender = true;
             this.components.forEach(comp => {
                 const position: Point = this.nodePositions?.[comp.uuid] ?? {x: 0, y: 0};
-                graph.addNode({
+                const componentNode = {
                     id: comp.uuid,
                     ...position,
                     title: comp.componentName,
                     type: 'component',
                     data: comp,
                     relatedIssues: new Set<string>(),
-                });
+                };
+                graph.addNode(componentNode);
+                this.addIssueGroupContainer(graph, componentNode);
                 comp.interfaces.forEach(inter => {
                     const position: Point = this.nodePositions?.[inter.uuid] ?? {x: 150, y: 0};
-                    graph.addNode({
+                    const interfaceNode = {
                         id: inter.uuid,
                         ...position,
                         title: inter.interfaceName,
                         type: 'interface',
                         data: inter,
                         relatedIssues: new Set<string>(),
-                    });
+                    };
+                    graph.addNode(interfaceNode);
+                    this.addIssueGroupContainer(graph, interfaceNode);
                     const edge = {
                         source: comp.uuid,
                         target: inter.uuid,
@@ -273,14 +296,141 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                 issueGroupNodes.push(`${nodeId}__feature`);
             }
 
-            this.updateIssueNodePositions(graph, nodeId, issueGroupNodes);
             graph.completeRender();
         });
+    }
+
+    private addIssueGroupContainer(graph: GraphEditor, node: Node) {
+        const gm = graph.groupingManager;
+        gm.markAsTreeRoot(node.id);
+        const groupBehaviour = graph.groupingManager.getGroupBehaviourOf(node.id);
+        groupBehaviour.moveChildrenAlongGoup = true;
+        groupBehaviour.childNodePositions = new Map();
+
+        const distance = (x, y, x2, y2) => {
+            return ((x - x2) ** 2) + ((y - y2) ** 2);
+        };
+
+        groupBehaviour.beforeNodeMove = function (this: GroupBehaviour, group: string, childGroup: string, groupNode: Node, childNode: Node, newPosition: Point, graphEditor: GraphEditor) {            // calculate groupNode dimensions
+            const width = groupNode.type === 'interface' ? 10 : 100;
+            const height = groupNode.type === 'interface' ? 10 : 60;
+            // find nearest side
+            let best = 'bottom';
+            if (newPosition != null && (newPosition.x !== 0 || newPosition.y !== 0)) {
+                let bestDistance = distance(newPosition.x, newPosition.y, groupNode.x, groupNode.y + (height / 2) + 25);
+                const rightDistance = distance(newPosition.x, newPosition.y, groupNode.x + (width / 2) + 30, groupNode.y);
+                const leftDistance = distance(newPosition.x, newPosition.y, groupNode.x - (width / 2) - 30, groupNode.y);
+                const topDistance = distance(newPosition.x, newPosition.y, groupNode.x, groupNode.y - (height / 2) - 25);
+                if (rightDistance < bestDistance) {
+                    bestDistance = rightDistance;
+                    best = 'right';
+                }
+                if (leftDistance < bestDistance) {
+                    bestDistance = leftDistance;
+                    best = 'left';
+                }
+                if (topDistance < bestDistance) {
+                    bestDistance = topDistance;
+                    best = 'top';
+                }
+            }
+            // set position
+            if (best === 'bottom') {
+                this.childNodePositions.set(childGroup, {x: 0, y: (height / 2) + 25});
+                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
+                    childNode.x = groupNode.x;
+                    childNode.y = groupNode.y + (height / 2) + 25;
+                }
+            }
+            if (best === 'top') {
+                this.childNodePositions.set(childGroup, {x: 0, y: -(height / 2) - 25});
+                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
+                    childNode.x = groupNode.x;
+                    childNode.y = groupNode.y - (height / 2) - 25;
+                }
+            }
+            if (best === 'right') {
+                this.childNodePositions.set(childGroup, {x: (width / 2) + 30, y: 0});
+                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
+                    childNode.x = groupNode.x + (width / 2) + 30;
+                    childNode.y = groupNode.y;
+                }
+            }
+            if (best === 'left') {
+                this.childNodePositions.set(childGroup, {x: -(width / 2) - 30, y: 0});
+                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
+                    childNode.x = groupNode.x - (width / 2) - 30;
+                    childNode.y = groupNode.y;
+                }
+            }
+            if (childNode != null) {
+                childNode.position = best;
+                // FIXME use better function once the group behaviour interface allows other functions...
+                graphEditor.groupingManager.getGroupBehaviourOf(childGroup)?.afterNodeJoinedGroup(childGroup, null, childNode, null, graphEditor);
+            }
+        };
+
+        const issueGroupContainerNode = {
+            id: `${node.id}__issue-group-container`,
+            type: 'issue-group-container',
+            dynamicTemplate: 'issue-group-container',
+            x: 0,
+            y: 0,
+            position: 'bottom',
+            issueGroupNodes: new Set<string>(),
+        };
+        graph.addNode(issueGroupContainerNode);
+        gm.addNodeToGroup(node.id, issueGroupContainerNode.id);
+        const containerGroupBehaviour = gm.getGroupBehaviourOf(issueGroupContainerNode.id);
+        containerGroupBehaviour.captureChildMovement = true;
+        containerGroupBehaviour.moveChildrenAlongGoup = true;
+        containerGroupBehaviour.childNodePositions = new Map();
+
+        containerGroupBehaviour.afterNodeJoinedGroup = function(this: GroupBehaviour, group: string, childGroup: string, groupNode: Node, childNode: Node, graphEditor: GraphEditor) {
+            const parent = graphEditor.groupingManager.getTreeParentOf(group);
+            const children = graphEditor.groupingManager.getChildrenOf(group);
+
+            const places = children.size - 1;
+            const startOffset = places > 0 ? (places / 2) : 0;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            if (groupNode.position === 'bottom' || groupNode.position === 'top') {
+                xOffset = startOffset * 45;
+            }
+            if (groupNode.position === 'right' || groupNode.position === 'left') {
+                yOffset = -startOffset * 35;
+            }
+
+            // pre sorted list
+            [
+                `${parent}__undecided`,
+                `${parent}__bug`,
+                `${parent}__feature`,
+            ].forEach(childId => {
+                if (!children.has(childId)) {
+                    return;
+                }
+                this.childNodePositions.set(childId, {x: xOffset, y: yOffset});
+                const child = graphEditor.getNode(childId);
+                if (child != null) {
+                    child.x = groupNode.x + xOffset;
+                    child.y = groupNode.y + yOffset;
+                }
+                if (groupNode.position === 'bottom' || groupNode.position === 'top') {
+                    xOffset -= 45;
+                }
+                if (groupNode.position === 'right' || groupNode.position === 'left') {
+                    yOffset += 35;
+                }
+            });
+        };
     }
 
     private updateIssueGroupNode(graph: GraphEditor, nodeId: string, relatedNodeId: string, issueType: string, issueSet: Set<string>) {
         const gm = graph.groupingManager;
         let issueGroupNode = graph.getNode(nodeId);
+        const issueGroupContainer = graph.getNode(`${relatedNodeId}__issue-group-container`);
         if (issueSet.size > 0) {
             if (issueGroupNode == null) {
                 issueGroupNode = {
@@ -289,36 +439,16 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                     x: 0,
                     y: 0,
                 };
-                gm.addNodeToGroup(relatedNodeId, nodeId);
                 graph.addNode(issueGroupNode);
+                gm.addNodeToGroup(issueGroupContainer.id, nodeId);
             }
             issueGroupNode.issues = issueSet;
             issueGroupNode.issueCount = issueSet.size > 99 ? '99+' : issueSet.size;
         } else {
             if (issueGroupNode != null) {
-                gm.removeNodeFromGroup(relatedNodeId, nodeId);
+                gm.removeNodeFromGroup(issueGroupContainer.id, nodeId);
                 graph.removeNode(issueGroupNode);
             }
         }
-    }
-
-    private updateIssueNodePositions(graph: GraphEditor, relatedNodeId: string, issueNodes: string[]) {
-        const relatedNode = graph.getNode(relatedNodeId);
-        const groupBehaviour = graph.groupingManager.getGroupBehaviourOf(relatedNodeId);
-        groupBehaviour.captureChildMovement = true;
-        groupBehaviour.moveChildrenAlongGoup = true;
-        groupBehaviour.childNodePositions = new Map();
-        let xOffset = 0;
-        const yOffset = relatedNode.type === 'interface' ? 30 : 60;
-        issueNodes.forEach(issueNodeId => {
-            groupBehaviour.childNodePositions.set(issueNodeId, {
-                x: xOffset,
-                y: yOffset,
-            });
-            const issueNode = graph.getNode(issueNodeId);
-            issueNode.x = relatedNode.x + xOffset;
-            issueNode.y = relatedNode.y + yOffset;
-            xOffset -= 43;
-        });
     }
 }

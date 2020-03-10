@@ -101,7 +101,10 @@ export class SystemArchitectureGraphComponent implements OnInit {
             new Issue('Some FR title', 'Hello, I am the first feature request', true, [], IssueType.FEATURE_REQUEST, [], [
                 { componentID: Uuid('shopping-cart-service', this.UUID_NAMESPACE) }
             ], []),
-            new Issue('Some issue for an interface', 'Hello, I am the first bug report at an interface', true, [], IssueType.BUG, [], [
+            new Issue('Some issue for an interface', 'Hello, I am the first bug report at an interface', true, [{
+                issueID: Uuid('Some titleHello, I am the first bug report', this.UUID_NAMESPACE),
+                relation: IssueRelation.DEPENDS
+            }], IssueType.BUG, [], [
                 {
                     componentID: Uuid('order-service', this.UUID_NAMESPACE),
                     interfaceID: Uuid('order-service-interface', this.UUID_NAMESPACE)

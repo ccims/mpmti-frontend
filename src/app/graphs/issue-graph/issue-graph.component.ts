@@ -2,7 +2,7 @@ import { Component, ViewChild, Input, OnChanges, OnInit, SimpleChanges } from '@
 import GraphEditor from '@ustutt/grapheditor-webcomponent/lib/grapheditor';
 import { Node } from '@ustutt/grapheditor-webcomponent/lib/node';
 import { Edge, Point } from '@ustutt/grapheditor-webcomponent/lib/edge';
-import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode, IssueType } from 'src/app/types/types-interfaces';
+import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode, IssueType, IssueRelation } from 'src/app/types/types-interfaces';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Issue } from 'src/app/model/issue';
@@ -94,7 +94,9 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         });
         graph.addEventListener('noderemove', (event: CustomEvent) => {
             const node = event.detail.node;
-            minimap.removeNode(node);
+            if (event.detail.node.type !== 'issue-group-container') {
+                minimap.removeNode(node);
+            }
             // clear stored information
             delete this.nodePositions[node.id];
             this.saveNodePositionsSubject.next();
@@ -132,7 +134,6 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         }
 
         const graph: GraphEditor = this.graph.nativeElement;
-        const minimap: GraphEditor = this.minimap.nativeElement; // TODO remove once minimap works with events only...
 
         let needRender = false;
 
@@ -169,7 +170,6 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         dragHandles: []
                     };
                     graph.addEdge(edge);
-                    minimap.addEdge(edge);
                 });
             });
         }
@@ -188,7 +188,6 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         }
                     };
                     graph.addEdge(edge);
-                    minimap.addEdge(edge);
                 });
                 graphEdges.edgesToComponents.forEach(toComponent => {
                     const edge = {
@@ -201,7 +200,6 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         }
                     };
                     graph.addEdge(edge);
-                    minimap.addEdge(edge);
                 });
             });
         }
@@ -263,7 +261,6 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         });
 
         const graph: GraphEditor = this.graph.nativeElement;
-        const minimap: GraphEditor = this.minimap.nativeElement; // TODO remove once minimap works with events only...
 
         relatedNodesToIssues.forEach((issueSet, nodeId) => {
             const node = graph.getNode(nodeId);
@@ -284,20 +281,11 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             this.updateIssueGroupNode(graph, `${nodeId}__undecided`, nodeId, 'issue-undecided', undecided);
             this.updateIssueGroupNode(graph, `${nodeId}__bug`, nodeId, 'issue-bug', bugs);
             this.updateIssueGroupNode(graph, `${nodeId}__feature`, nodeId, 'issue-feature', features);
-
-            const issueGroupNodes = [];
-            if (undecided.size > 0) {
-                issueGroupNodes.push(`${nodeId}__undecided`);
-            }
-            if (bugs.size > 0) {
-                issueGroupNodes.push(`${nodeId}__bug`);
-            }
-            if (features.size > 0) {
-                issueGroupNodes.push(`${nodeId}__feature`);
-            }
-
-            graph.completeRender();
         });
+
+        this.updateIssueEdges(graph, relatedNodesToIssues);
+
+        graph.completeRender();
     }
 
     private addIssueGroupContainer(graph: GraphEditor, node: Node) {
@@ -444,11 +432,127 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             }
             issueGroupNode.issues = issueSet;
             issueGroupNode.issueCount = issueSet.size > 99 ? '99+' : issueSet.size;
+
+            issueSet.forEach(issueId => {
+                if (!this.issueToGraphNode.has(issueId)) {
+                    this.issueToGraphNode.set(issueId, new Set<string>());
+                }
+                this.issueToGraphNode.get(issueId).add(nodeId);
+            });
         } else {
             if (issueGroupNode != null) {
                 gm.removeNodeFromGroup(issueGroupContainer.id, nodeId);
                 graph.removeNode(issueGroupNode);
             }
         }
+    }
+
+    updateIssueEdges(graph: GraphEditor, relatedNodeToIssues: Map<string, Set<string>>) {
+
+        relatedNodeToIssues.forEach((issueSet, relatedNodeId) => {
+            graph.groupingManager.getAllChildrenOf(relatedNodeId).forEach(sourceNodeId => {
+                const sourceNode = graph.getNode(sourceNodeId);
+                if (sourceNode?.type === 'issue-group-container') {
+                    return;
+                }
+                const issues = sourceNode?.issues ?? new Set<string>();
+                const oldEdges = graph.getEdgesBySource(sourceNodeId);
+                const relatedToTargets = new Set<string>();
+                const duplicateOfTargets = new Set<string>();
+                const dependsOnTargets = new Set<string>();
+
+                // fill target sets
+                issues.forEach(issueId => {
+                    const issue = this.issuesById.get(issueId);
+                    issue.getLinkedIssues().forEach(linked => {
+                        const targetIssueId = linked.issueID;
+                        const targetNodeIds = this.issueToGraphNode.get(targetIssueId);
+                        if (linked.relation === IssueRelation.DEPENDS) {
+                            targetNodeIds.forEach(targetNodeId => {
+                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
+                                    return; // dont generate edges to the same node or to the current component
+                                }
+                                dependsOnTargets.add(targetNodeId);
+                            });
+                        } else if (linked.relation === IssueRelation.DUPLICATES) {
+                            targetNodeIds.forEach(targetNodeId => {
+                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
+                                    return; // dont generate edges to the same node or to the current component
+                                }
+                                duplicateOfTargets.add(targetNodeId);
+                            });
+                        } else {
+                            targetNodeIds.forEach(targetNodeId => {
+                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
+                                    return; // dont generate edges to the same node or to the current component
+                                }
+                                relatedToTargets.add(targetNodeId);
+                            });
+                        }
+                    });
+                });
+
+                // remove unused edges
+                oldEdges.forEach(edge => {
+                    if (edge.type === 'relatedTo') {
+                        if (relatedToTargets.has(edge.target as string)) {
+                            relatedToTargets.delete(edge.target as string);
+                        } else {
+                            graph.removeEdge(edge);
+                        }
+                    }
+                    if (edge.type === 'duplicate') {
+                        if (duplicateOfTargets.has(edge.target as string)) {
+                            duplicateOfTargets.delete(edge.target as string);
+                        } else {
+                            graph.removeEdge(edge);
+                        }
+                    }
+                    if (edge.type === 'dependency') {
+                        if (dependsOnTargets.has(edge.target as string)) {
+                            dependsOnTargets.delete(edge.target as string);
+                        } else {
+                            graph.removeEdge(edge);
+                        }
+                    }
+                });
+
+                // add new edges
+                relatedToTargets.forEach(targetId => {
+                    graph.addEdge({
+                        source: sourceNodeId,
+                        target: targetId,
+                        type: 'relatedTo',
+                        markerEnd: {
+                            template: 'arrow',
+                            relativeRotation: 0,
+                        }
+                    });
+                });
+                duplicateOfTargets.forEach(targetId => {
+                    graph.addEdge({
+                        source: sourceNodeId,
+                        target: targetId,
+                        type: 'duplicate',
+                        markerEnd: {
+                            template: 'arrow',
+                            relativeRotation: 0,
+                        }
+                    });
+                });
+                dependsOnTargets.forEach(targetId => {
+                    graph.addEdge({
+                        source: sourceNodeId,
+                        target: targetId,
+                        type: 'dependency',
+                        markerEnd: {
+                            template: 'arrow',
+                            relativeRotation: 0,
+                        }
+                    });
+                });
+            });
+        });
+
     }
 }

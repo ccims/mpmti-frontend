@@ -1,7 +1,7 @@
 import { Component, ViewChild, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import GraphEditor from '@ustutt/grapheditor-webcomponent/lib/grapheditor';
 import { Node } from '@ustutt/grapheditor-webcomponent/lib/node';
-import { Edge, Point } from '@ustutt/grapheditor-webcomponent/lib/edge';
+import { Edge, Point, DraggedEdge } from '@ustutt/grapheditor-webcomponent/lib/edge';
 import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode, IssueType, IssueRelation } from 'src/app/types/types-interfaces';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -10,6 +10,7 @@ import { Rect } from '@ustutt/grapheditor-webcomponent/lib/util';
 import { GroupBehaviour } from '@ustutt/grapheditor-webcomponent/lib/grouping';
 import { DynamicTemplateContext, DynamicNodeTemplate } from '@ustutt/grapheditor-webcomponent/lib/dynamic-templates/dynamic-template';
 import { LinkHandle } from '@ustutt/grapheditor-webcomponent/lib/link-handle';
+import { IssueGroupContainerParentBehaviour, IssueGroupContainerBehaviour } from './group-behaviours';
 
 @Component({
     selector: 'app-issue-graph',
@@ -61,6 +62,56 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         };
         graph.setNodeClass = classSetter;
         minimap.setNodeClass = classSetter;
+
+        const linkHandleCalculation = (edge: Edge|DraggedEdge, sourceHandles: LinkHandle[], source: Node, targetHandles: LinkHandle[], target: Node) => {
+            const handles = {
+                sourceHandles: sourceHandles,
+                targetHandles: targetHandles,
+            };
+            if (source?.allowedAnchors != null) {
+                handles.sourceHandles = sourceHandles.filter(linkHandle => {
+                    if (Math.abs(linkHandle.x) > Math.abs(linkHandle.y)) {
+                        if (linkHandle.x > 0 && source.allowedAnchors.has('right')) {
+                            return true;
+                        }
+                        if (linkHandle.x < 0 && source.allowedAnchors.has('left')) {
+                            return true;
+                        }
+                    } else {
+                        if (linkHandle.y > 0 && source.allowedAnchors.has('bottom')) {
+                            return true;
+                        }
+                        if (linkHandle.y < 0 && source.allowedAnchors.has('top')) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+            if (target?.allowedAnchors != null) {
+                handles.targetHandles = targetHandles.filter(linkHandle => {
+                    if (Math.abs(linkHandle.x) > Math.abs(linkHandle.y)) {
+                        if (linkHandle.x > 0 && target.allowedAnchors.has('right')) {
+                            return true;
+                        }
+                        if (linkHandle.x < 0 && target.allowedAnchors.has('left')) {
+                            return true;
+                        }
+                    } else {
+                        if (linkHandle.y > 0 && target.allowedAnchors.has('bottom')) {
+                            return true;
+                        }
+                        if (linkHandle.y < 0 && target.allowedAnchors.has('top')) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+            return handles;
+        };
+        graph.calculateLinkHandlesForEdge = linkHandleCalculation;
+        minimap.calculateLinkHandlesForEdge = linkHandleCalculation;
 
         graph.dynamicTemplateRegistry.addDynamicTemplate('issue-group-container', {
             renderInitialTemplate(g, grapheditor: GraphEditor, context: DynamicTemplateContext<Node>): void {
@@ -291,72 +342,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
     private addIssueGroupContainer(graph: GraphEditor, node: Node) {
         const gm = graph.groupingManager;
         gm.markAsTreeRoot(node.id);
-        const groupBehaviour = graph.groupingManager.getGroupBehaviourOf(node.id);
-        groupBehaviour.moveChildrenAlongGoup = true;
-        groupBehaviour.childNodePositions = new Map();
-
-        const distance = (x, y, x2, y2) => {
-            return ((x - x2) ** 2) + ((y - y2) ** 2);
-        };
-
-        groupBehaviour.beforeNodeMove = function (this: GroupBehaviour, group: string, childGroup: string, groupNode: Node, childNode: Node, newPosition: Point, graphEditor: GraphEditor) {            // calculate groupNode dimensions
-            const width = groupNode.type === 'interface' ? 10 : 100;
-            const height = groupNode.type === 'interface' ? 10 : 60;
-            // find nearest side
-            let best = 'bottom';
-            if (newPosition != null && (newPosition.x !== 0 || newPosition.y !== 0)) {
-                let bestDistance = distance(newPosition.x, newPosition.y, groupNode.x, groupNode.y + (height / 2) + 25);
-                const rightDistance = distance(newPosition.x, newPosition.y, groupNode.x + (width / 2) + 30, groupNode.y);
-                const leftDistance = distance(newPosition.x, newPosition.y, groupNode.x - (width / 2) - 30, groupNode.y);
-                const topDistance = distance(newPosition.x, newPosition.y, groupNode.x, groupNode.y - (height / 2) - 25);
-                if (rightDistance < bestDistance) {
-                    bestDistance = rightDistance;
-                    best = 'right';
-                }
-                if (leftDistance < bestDistance) {
-                    bestDistance = leftDistance;
-                    best = 'left';
-                }
-                if (topDistance < bestDistance) {
-                    bestDistance = topDistance;
-                    best = 'top';
-                }
-            }
-            // set position
-            if (best === 'bottom') {
-                this.childNodePositions.set(childGroup, {x: 0, y: (height / 2) + 25});
-                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
-                    childNode.x = groupNode.x;
-                    childNode.y = groupNode.y + (height / 2) + 25;
-                }
-            }
-            if (best === 'top') {
-                this.childNodePositions.set(childGroup, {x: 0, y: -(height / 2) - 25});
-                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
-                    childNode.x = groupNode.x;
-                    childNode.y = groupNode.y - (height / 2) - 25;
-                }
-            }
-            if (best === 'right') {
-                this.childNodePositions.set(childGroup, {x: (width / 2) + 30, y: 0});
-                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
-                    childNode.x = groupNode.x + (width / 2) + 30;
-                    childNode.y = groupNode.y;
-                }
-            }
-            if (best === 'left') {
-                this.childNodePositions.set(childGroup, {x: -(width / 2) - 30, y: 0});
-                if (childNode != null && (newPosition == null || (newPosition.x === 0 && newPosition.y === 0))) {
-                    childNode.x = groupNode.x - (width / 2) - 30;
-                    childNode.y = groupNode.y;
-                }
-            }
-            if (childNode != null) {
-                childNode.position = best;
-                // FIXME use better function once the group behaviour interface allows other functions...
-                graphEditor.groupingManager.getGroupBehaviourOf(childGroup)?.afterNodeJoinedGroup(childGroup, null, childNode, null, graphEditor);
-            }
-        };
+        graph.groupingManager.setGroupBehaviourOf(node.id, new IssueGroupContainerParentBehaviour());
 
         const issueGroupContainerNode = {
             id: `${node.id}__issue-group-container`,
@@ -369,50 +355,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         };
         graph.addNode(issueGroupContainerNode);
         gm.addNodeToGroup(node.id, issueGroupContainerNode.id);
-        const containerGroupBehaviour = gm.getGroupBehaviourOf(issueGroupContainerNode.id);
-        containerGroupBehaviour.captureChildMovement = true;
-        containerGroupBehaviour.moveChildrenAlongGoup = true;
-        containerGroupBehaviour.childNodePositions = new Map();
-
-        containerGroupBehaviour.afterNodeJoinedGroup = function(this: GroupBehaviour, group: string, childGroup: string, groupNode: Node, childNode: Node, graphEditor: GraphEditor) {
-            const parent = graphEditor.groupingManager.getTreeParentOf(group);
-            const children = graphEditor.groupingManager.getChildrenOf(group);
-
-            const places = children.size - 1;
-            const startOffset = places > 0 ? (places / 2) : 0;
-            let xOffset = 0;
-            let yOffset = 0;
-
-            if (groupNode.position === 'bottom' || groupNode.position === 'top') {
-                xOffset = startOffset * 45;
-            }
-            if (groupNode.position === 'right' || groupNode.position === 'left') {
-                yOffset = -startOffset * 35;
-            }
-
-            // pre sorted list
-            [
-                `${parent}__undecided`,
-                `${parent}__bug`,
-                `${parent}__feature`,
-            ].forEach(childId => {
-                if (!children.has(childId)) {
-                    return;
-                }
-                this.childNodePositions.set(childId, {x: xOffset, y: yOffset});
-                const child = graphEditor.getNode(childId);
-                if (child != null) {
-                    child.x = groupNode.x + xOffset;
-                    child.y = groupNode.y + yOffset;
-                }
-                if (groupNode.position === 'bottom' || groupNode.position === 'top') {
-                    xOffset -= 45;
-                }
-                if (groupNode.position === 'right' || groupNode.position === 'left') {
-                    yOffset += 35;
-                }
-            });
-        };
+        gm.setGroupBehaviourOf(issueGroupContainerNode.id, new IssueGroupContainerBehaviour());
     }
 
     private updateIssueGroupNode(graph: GraphEditor, nodeId: string, relatedNodeId: string, issueType: string, issueSet: Set<string>) {

@@ -113,6 +113,16 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         graph.calculateLinkHandlesForEdge = linkHandleCalculation;
         minimap.calculateLinkHandlesForEdge = linkHandleCalculation;
 
+        // setup edge drag behaviour
+        graph.onCreateDraggedEdge = this.onCreateEdge;
+        graph.onDraggedEdgeTargetChange = this.onDraggedEdgeTargetChanged;
+        graph.addEventListener('edgeadd', this.onEdgeAdd);
+        graph.addEventListener('edgeremove', this.onEdgeRemove);
+        graph.addEventListener('edgedrop', this.onEdgeDrop);
+
+        // setup node click behaviour
+        graph.addEventListener('nodeclick', this.onNodeClick);
+
         graph.dynamicTemplateRegistry.addDynamicTemplate('issue-group-container', {
             renderInitialTemplate(g, grapheditor: GraphEditor, context: DynamicTemplateContext<Node>): void {
                 // template is empty
@@ -179,14 +189,21 @@ export class IssueGraphComponent implements OnChanges, OnInit {
 
     ngOnChanges(changes: SimpleChanges) {
         this.initGraph();
+        const graph: GraphEditor = this.graph.nativeElement;
+        let needRender = false;
+
         // tslint:disable-next-line: max-line-length
         if (changes.project?.previousValue?.generalInformation?.projectName !== changes.project?.currentValue?.generalInformation?.projectName) {
             this.loadProjectSettings(changes.project?.currentValue?.generalInformation?.projectName);
+
+            // reset graph if project has changed!
+            graph.edgeList = [];
+            graph.nodeList = [];
+            graph.groupingManager.clearAllGroups();
+            needRender = true;
+            // TODO reset private fields of this class
         }
 
-        const graph: GraphEditor = this.graph.nativeElement;
-
-        let needRender = false;
 
         if (changes.components != null) {
             needRender = true;
@@ -263,6 +280,116 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             graph.completeRender();
             graph.zoomToBoundingBox();
         }
+    }
+
+    private onCreateEdge = (edge: DraggedEdge) => {
+        const graph: GraphEditor = this.graph.nativeElement;
+        const createdFromExisting = edge.createdFrom != null;
+
+        if (createdFromExisting) {
+            // only allow delete or dropping at the same node
+            const original = graph.getEdge(edge.createdFrom);
+            edge.validTargets.clear();
+            edge.validTargets.add(original.target.toString());
+            return edge;
+        }
+
+        const sourceNode = graph.getNode(edge.source);
+        if (sourceNode.type === 'component') {
+            // update edge properties
+            edge.type = 'interface';
+            edge.dragHandles = []; // no drag handles
+
+            // update valid targets
+            edge.validTargets.clear();
+            // allow only interfaces as targets
+            graph.nodeList.forEach(node => {
+                if (node.type === 'interface') {
+                    edge.validTargets.add(node.id.toString());
+                }
+            });
+            // allow only new targets
+            graph.getEdgesBySource(sourceNode.id).forEach(existingEdge => {
+                edge.validTargets.delete(existingEdge.target.toString());
+            });
+        }
+        return edge;
+    }
+
+    private onDraggedEdgeTargetChanged = (edge: DraggedEdge, sourceNode: Node, targetNode: Node) => {
+        if (sourceNode.type === 'component') {
+            if (targetNode?.type === 'interface') {
+                edge.type = 'interface-connect';
+                edge.markerEnd = {
+                    template: 'interface-connector',
+                    relativeRotation: 0,
+                };
+                delete edge.dragHandles; // default drag handle
+            } else {
+                // target was null/create a new interface
+                edge.type = 'interface';
+                delete edge.markerEnd;
+                edge.dragHandles = []; // no drag handles
+            }
+        }
+        return edge;
+    }
+
+    private onEdgeAdd = (event: CustomEvent) => {
+        if (event.detail.eventSource === 'API') {
+            return;
+        }
+        const edge: Edge = event.detail.edge;
+        if (edge.type === 'interface-connect') {
+            event.preventDefault(); // cancel edge creation
+            // TODO create actual edge in the components data structure
+            // and then update the graph via the api
+            console.log('TODO: Create new interface connection', edge);
+        }
+    }
+
+    private onEdgeDrop = (event: CustomEvent) => {
+        if (event.detail.eventSource === 'API') {
+            return;
+        }
+        const edge: DraggedEdge = event.detail.edge;
+        if (edge.createdFrom != null) {
+            return;
+        }
+        if (edge.type === 'interface') {
+            // TODO add interface to the component data structure
+            console.log('TODO: Create new interface for the component', event.detail.sourceNode, 'At position', edge.currentTarget);
+        }
+    }
+
+    private onEdgeRemove = (event: CustomEvent) => {
+        if (event.detail.eventSource === 'API') {
+            return;
+        }
+        const edge: Edge = event.detail.edge;
+        if (edge.type === 'interface-connect') {
+            event.preventDefault(); // cancel edge deletion
+            // TODO remove actual edge in the components data structure
+            // and then update the graph via the api
+            console.log('TODO: Remove existing interface connection', edge);
+        }
+    }
+
+    private onNodeClick = (event: CustomEvent) => {
+        event.preventDefault(); // prevent node selection
+        const node = event.detail.node;
+
+        if (node.type === 'component') {
+            // TODO show a edit component dialog (or similar)
+            console.log('Clicked on component:', node);
+            return;
+        }
+        if (node.type === 'interface') {
+            // TODO show a edit interface dialog (or similar)
+            console.log('Clicked on interface:', node);
+            return;
+        }
+        console.log('Clicked on another type of noode:', node);
     }
 
     private unsubscribe() {
@@ -390,7 +517,7 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         }
     }
 
-    updateIssueEdges(graph: GraphEditor, relatedNodeToIssues: Map<string, Set<string>>) {
+    private updateIssueEdges(graph: GraphEditor, relatedNodeToIssues: Map<string, Set<string>>) {
 
         relatedNodeToIssues.forEach((issueSet, relatedNodeId) => {
             graph.groupingManager.getAllChildrenOf(relatedNodeId).forEach(sourceNodeId => {
@@ -469,7 +596,8 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         markerEnd: {
                             template: 'arrow',
                             relativeRotation: 0,
-                        }
+                        },
+                        dragHandles: []
                     });
                 });
                 duplicateOfTargets.forEach(targetId => {
@@ -480,7 +608,8 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         markerEnd: {
                             template: 'arrow',
                             relativeRotation: 0,
-                        }
+                        },
+                        dragHandles: []
                     });
                 });
                 dependsOnTargets.forEach(targetId => {
@@ -491,7 +620,8 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                         markerEnd: {
                             template: 'arrow',
                             relativeRotation: 0,
-                        }
+                        },
+                        dragHandles: []
                     });
                 });
             });

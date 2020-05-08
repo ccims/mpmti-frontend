@@ -54,14 +54,28 @@ export class IssueGraphComponent implements OnChanges, OnInit {
         this.graphInitialized = true;
         const graph: GraphEditor = this.graph.nativeElement;
         const minimap: GraphEditor = this.minimap.nativeElement;
-        const classSetter = (className, node) => {
+        const nodeClassSetter = (className: string, node: Node) => {
             if (className === node.type) {
                 return true;
             }
             return false;
         };
-        graph.setNodeClass = classSetter;
-        minimap.setNodeClass = classSetter;
+        graph.setNodeClass = nodeClassSetter;
+        minimap.setNodeClass = nodeClassSetter;
+        const edgeClassSetter = (className: string, edge: Edge, sourceNode: Node, targetNode: Node) => {
+            if (className === edge.type) {
+                return true;
+            }
+            if (className === 'related-to' && edge.type === 'relatedTo') {
+                return true;
+            }
+            if (className === 'issue-relation' && (edge.type === 'relatedTo' || edge.type === 'duplicate' || edge.type === 'dependency')) {
+                return true;
+            }
+            return false;
+        };
+        graph.setEdgeClass = edgeClassSetter;
+        minimap.setEdgeClass = edgeClassSetter;
 
         const linkHandleCalculation = (edge: Edge|DraggedEdge, sourceHandles: LinkHandle[], source: Node, targetHandles: LinkHandle[], target: Node) => {
             const handles = {

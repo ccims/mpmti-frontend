@@ -1,5 +1,5 @@
 <div class="graph-container">
-    <network-graph class="graph" mode="layout" classes="component interface issue bug done" #graph>
+    <network-graph class="graph" mode="layout" classes="component interface issue bug done interface-connect component-connect issue-relation related-to duplicate dependency" #graph>
         <style slot="style">
             svg {
                 width: 100%;
@@ -23,6 +23,16 @@
                 .dropzone:hover {opacity: 1;}
                 .component.hovered .link-handle {display: initial;}
                 .node.component rect {fill: white; stroke: black;}
+
+                /* issue relation edge styling (use '.related-to', '.duplicate' and '.dependency' to style the individual types)*/
+                .edge-group.issue-relation .edge {
+                    stroke: gray;
+                    stroke-width: 3px;
+                    stroke-linecap: round;
+                }
+                .edge-group.issue-relation .marker {
+                    fill: gray;
+                }
             </style>
             <defs class="templates">
                 <path id="icon-folder" d="M 36,29 l3,-24 h -6 M 0,3 l 3,26 h 33 l -3,-26 h -23 l -1,-3 h -8 z"></path>

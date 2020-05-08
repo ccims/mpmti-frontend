@@ -91,7 +91,7 @@ export class SystemArchitectureGraphComponent implements OnInit {
             new Issue('Some title', 'Hello, I am the first bug report', true,
                 [
                     {
-                        issueID: Uuid('Some titleHello, I am the first bug report', this.UUID_NAMESPACE),
+                        issueID: Uuid('Some issue for an interfaceHello, I am the first bug report at an interface', this.UUID_NAMESPACE),
                         relation: IssueRelation.DEPENDS
                     }
                 ], IssueType.BUG, [],
@@ -102,7 +102,7 @@ export class SystemArchitectureGraphComponent implements OnInit {
                 { componentID: Uuid('shopping-cart-service', this.UUID_NAMESPACE) }
             ], []),
             new Issue('Some issue for an interface', 'Hello, I am the first bug report at an interface', true, [{
-                issueID: Uuid('Some titleHello, I am the first bug report', this.UUID_NAMESPACE),
+                issueID: Uuid('Some issue for the order-serviceHello, I am an issue in the order-service', this.UUID_NAMESPACE),
                 relation: IssueRelation.DEPENDS
             }], IssueType.BUG, [], [
                 {
@@ -116,6 +116,10 @@ export class SystemArchitectureGraphComponent implements OnInit {
                 }
             ], []),
             new Issue('Some other title', 'Hello, I am the second bug report', true, [], IssueType.BUG, [], [
+                { componentID: Uuid('shipping-service', this.UUID_NAMESPACE) }
+            ], []),
+            new Issue('The second shipping service issue', 'Hello, I am the second bug report for the shipping service', true, [],
+                IssueType.BUG, [], [
                 { componentID: Uuid('shipping-service', this.UUID_NAMESPACE) }
             ], []),
         ];

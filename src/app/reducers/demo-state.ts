@@ -52,6 +52,10 @@ const compPaymentService: Component = {
 };
 
 
+const issueNamespaceA = Uuid('sandros-project', ISSUE_NAMESPACE_UUID_NAMESPACE);
+const issueNamespaceB = Uuid('pse', ISSUE_NAMESPACE_UUID_NAMESPACE);
+const issueNamespaceC = Uuid('pizza-calculator', ISSUE_NAMESPACE_UUID_NAMESPACE);
+
 const projA: Project = {
     projectId: Uuid('sandros-project', PROJECT_UUID_NAMESPACE),
 
@@ -73,7 +77,7 @@ const projA: Project = {
         compPaymentService.componentId,
     ],
 
-    issueNamespace: 'sandros-project',
+    issueNamespace: issueNamespaceA,
 };
 
 const projB: Project = {
@@ -97,7 +101,7 @@ const projB: Project = {
         compPaymentService.componentId,
     ],
 
-    issueNamespace: 'pse',
+    issueNamespace: issueNamespaceB,
 };
 
 const projC: Project = {
@@ -121,7 +125,7 @@ const projC: Project = {
         compPaymentService.componentId,
     ],
 
-    issueNamespace: 'pizza-calculator',
+    issueNamespace: issueNamespaceC,
 };
 
 
@@ -239,11 +243,6 @@ const issueG: Issue = {
 };
 
 
-const namespaceA = Uuid('A', ISSUE_NAMESPACE_UUID_NAMESPACE);
-const namespaceB = Uuid('B', ISSUE_NAMESPACE_UUID_NAMESPACE);
-const namespaceC = Uuid('C', ISSUE_NAMESPACE_UUID_NAMESPACE);
-
-
 export const DEMO_INITIAL_STATE: State = {
     projects: {
         [projA.projectId]: projA,
@@ -256,199 +255,199 @@ export const DEMO_INITIAL_STATE: State = {
         [compPaymentService.componentId]: compPaymentService,
     },
     issueNamespaces: {
-        'A': {
-            [Uuid(issueA.title, namespaceA)]: {
+        [issueNamespaceA]: {
+            [Uuid(issueA.title, issueNamespaceA)]: {
                 ...issueA,
-                issueId: Uuid(issueA.title, namespaceA),
+                issueId: Uuid(issueA.title, issueNamespaceA),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueC.title, namespaceA),
+                        relatedIssueID: Uuid(issueC.title, issueNamespaceA),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueB.title, namespaceA)]: {
+            [Uuid(issueB.title, issueNamespaceA)]: {
                 ...issueB,
-                issueId: Uuid(issueB.title, namespaceA),
+                issueId: Uuid(issueB.title, issueNamespaceA),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueC.title, namespaceA)]: {
+            [Uuid(issueC.title, issueNamespaceA)]: {
                 ...issueC,
-                issueId: Uuid(issueC.title, namespaceA),
+                issueId: Uuid(issueC.title, issueNamespaceA),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueD.title, namespaceA),
+                        relatedIssueID: Uuid(issueD.title, issueNamespaceA),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueD.title, namespaceA)]: {
+            [Uuid(issueD.title, issueNamespaceA)]: {
                 ...issueD,
-                issueId: Uuid(issueD.title, namespaceA),
+                issueId: Uuid(issueD.title, issueNamespaceA),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueE.title, namespaceA)]: {
+            [Uuid(issueE.title, issueNamespaceA)]: {
                 ...issueE,
-                issueId: Uuid(issueE.title, namespaceA),
+                issueId: Uuid(issueE.title, issueNamespaceA),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueF.title, namespaceA)]: {
+            [Uuid(issueF.title, issueNamespaceA)]: {
                 ...issueF,
-                issueId: Uuid(issueF.title, namespaceA),
+                issueId: Uuid(issueF.title, issueNamespaceA),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueG.title, namespaceA),
+                        relatedIssueID: Uuid(issueG.title, issueNamespaceA),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueG.title, namespaceA)]: {
+            [Uuid(issueG.title, issueNamespaceA)]: {
                 ...issueG,
-                issueId: Uuid(issueG.title, namespaceA),
+                issueId: Uuid(issueG.title, issueNamespaceA),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
         },
-        'B': {
-            [Uuid(issueA.title, namespaceB)]: {
+        [issueNamespaceB]: {
+            [Uuid(issueA.title, issueNamespaceB)]: {
                 ...issueA,
-                issueId: Uuid(issueA.title, namespaceB),
+                issueId: Uuid(issueA.title, issueNamespaceB),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueC.title, namespaceB),
+                        relatedIssueID: Uuid(issueC.title, issueNamespaceB),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueB.title, namespaceB)]: {
+            [Uuid(issueB.title, issueNamespaceB)]: {
                 ...issueB,
-                issueId: Uuid(issueB.title, namespaceB),
+                issueId: Uuid(issueB.title, issueNamespaceB),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueC.title, namespaceB)]: {
+            [Uuid(issueC.title, issueNamespaceB)]: {
                 ...issueC,
-                issueId: Uuid(issueC.title, namespaceB),
+                issueId: Uuid(issueC.title, issueNamespaceB),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueD.title, namespaceB),
+                        relatedIssueID: Uuid(issueD.title, issueNamespaceB),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueD.title, namespaceB)]: {
+            [Uuid(issueD.title, issueNamespaceB)]: {
                 ...issueD,
-                issueId: Uuid(issueD.title, namespaceB),
+                issueId: Uuid(issueD.title, issueNamespaceB),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueE.title, namespaceB)]: {
+            [Uuid(issueE.title, issueNamespaceB)]: {
                 ...issueE,
-                issueId: Uuid(issueE.title, namespaceB),
+                issueId: Uuid(issueE.title, issueNamespaceB),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueF.title, namespaceB)]: {
+            [Uuid(issueF.title, issueNamespaceB)]: {
                 ...issueF,
-                issueId: Uuid(issueF.title, namespaceB),
+                issueId: Uuid(issueF.title, issueNamespaceB),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueG.title, namespaceB),
+                        relatedIssueID: Uuid(issueG.title, issueNamespaceB),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueG.title, namespaceB)]: {
+            [Uuid(issueG.title, issueNamespaceB)]: {
                 ...issueG,
-                issueId: Uuid(issueG.title, namespaceB),
+                issueId: Uuid(issueG.title, issueNamespaceB),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
         },
-        'C': {
-            [Uuid(issueA.title, namespaceC)]: {
+        [issueNamespaceC]: {
+            [Uuid(issueA.title, issueNamespaceC)]: {
                 ...issueA,
-                issueId: Uuid(issueA.title, namespaceC),
+                issueId: Uuid(issueA.title, issueNamespaceC),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueC.title, namespaceC),
+                        relatedIssueID: Uuid(issueC.title, issueNamespaceC),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueB.title, namespaceC)]: {
+            [Uuid(issueB.title, issueNamespaceC)]: {
                 ...issueB,
-                issueId: Uuid(issueB.title, namespaceC),
+                issueId: Uuid(issueB.title, issueNamespaceC),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueC.title, namespaceC)]: {
+            [Uuid(issueC.title, issueNamespaceC)]: {
                 ...issueC,
-                issueId: Uuid(issueC.title, namespaceC),
+                issueId: Uuid(issueC.title, issueNamespaceC),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueD.title, namespaceC),
+                        relatedIssueID: Uuid(issueD.title, issueNamespaceC),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueD.title, namespaceC)]: {
+            [Uuid(issueD.title, issueNamespaceC)]: {
                 ...issueD,
-                issueId: Uuid(issueD.title, namespaceC),
+                issueId: Uuid(issueD.title, issueNamespaceC),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueE.title, namespaceC)]: {
+            [Uuid(issueE.title, issueNamespaceC)]: {
                 ...issueE,
-                issueId: Uuid(issueE.title, namespaceC),
+                issueId: Uuid(issueE.title, issueNamespaceC),
                 relatedIssues: [],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueF.title, namespaceC)]: {
+            [Uuid(issueF.title, issueNamespaceC)]: {
                 ...issueF,
-                issueId: Uuid(issueF.title, namespaceC),
+                issueId: Uuid(issueF.title, issueNamespaceC),
                 relatedIssues: [
                     {
-                        relatedIssueID: Uuid(issueG.title, namespaceC),
+                        relatedIssueID: Uuid(issueG.title, issueNamespaceC),
                         relationType: IssueRelationType.DEPENDS,
                     }
                 ],
                 comments: [],
                 labels: [],
             },
-            [Uuid(issueG.title, namespaceC)]: {
+            [Uuid(issueG.title, issueNamespaceC)]: {
                 ...issueG,
-                issueId: Uuid(issueG.title, namespaceC),
+                issueId: Uuid(issueG.title, issueNamespaceC),
                 relatedIssues: [],
                 comments: [],
                 labels: [],

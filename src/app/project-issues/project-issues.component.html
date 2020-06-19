@@ -4,7 +4,7 @@
             <mat-icon matTooltip="System Architecture Graph View">account_tree</mat-icon>
         </ng-template>
         <ng-template matTabContent>
-            <app-system-architecture-graph [project]="this.getProject()"></app-system-architecture-graph>
+            <app-system-architecture-graph [project]="project | async" *ngIf="(project | async) != null"></app-system-architecture-graph>
         </ng-template>
     </mat-tab>
     <mat-tab>
@@ -12,7 +12,7 @@
             <mat-icon matTooltip="List View">list</mat-icon>
         </ng-template>
         <ng-template matTabContent>
-            <app-issue-list [project]="this.getProject()"></app-issue-list>
+            <app-issue-list [project]="project | async" *ngIf="(project | async) != null"></app-issue-list>
         </ng-template>
     </mat-tab>
 </mat-tab-group>

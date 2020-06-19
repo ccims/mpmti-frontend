@@ -15,119 +15,12 @@ import { Issue } from '../model/issue';
 })
 export class SystemArchitectureGraphComponent implements OnInit {
 
-    @Input()
-    project: Project;
-    components: ProjectComponent[]; // TODO ask backend for list of project's components
-    systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[]; // TODO ask backend for system architecture edge list
-    issues: Issue[]; // TODO ask backend for issue list
-    private readonly UUID_NAMESPACE: string = '005640e5-a15f-475e-b95f-73ef41c611fa';
+    @Input() project: Project;
 
     constructor(public dialog: MatDialog) { }
 
     ngOnInit() {
-        this.components = [
-            {
-                componentName: 'order-service',
-                uuid: Uuid('order-service', this.UUID_NAMESPACE),
-                interfaces: []
-            },
-            {
-                componentName: 'shipping-service',
-                uuid: Uuid('shipping-service', this.UUID_NAMESPACE),
-                interfaces: [
-                    {
-                        interfaceName: 'shipping-service-interface',
-                        uuid: Uuid('shipping-service-interface', this.UUID_NAMESPACE)
-                    }
-                ]
-            },
-            {
-                componentName: 'payment-service',
-                uuid: Uuid('payment-service', this.UUID_NAMESPACE),
-                interfaces: [
-                    {
-                        interfaceName: 'payment-service-interface',
-                        uuid: Uuid('payment-service-interface', this.UUID_NAMESPACE)
-                    }
-                ]
-            }
-        ];
-        this.systemArchitectureGraphEdges = [
-            {
-                componentUuid: Uuid('order-service', this.UUID_NAMESPACE),
-                edgesToInterfaces: [
-                    Uuid('shipping-service-interface', this.UUID_NAMESPACE),
-                    Uuid('payment-service-interface', this.UUID_NAMESPACE)
-                ],
-                edgesToComponents: []
-            },
-            {
-                componentUuid: Uuid('shipping-service', this.UUID_NAMESPACE),
-                edgesToInterfaces: [Uuid('payment-service-interface', this.UUID_NAMESPACE)],
-                edgesToComponents: []
-            },
-            {
-                componentUuid: Uuid('payment-service', this.UUID_NAMESPACE),
-                edgesToInterfaces: [],
-                edgesToComponents: []
-            }
-        ];
-        this.issues = [
-            new Issue('order-service bug', 'problem in accessing shipping service API', true,
-                [
-                    {
-                        issueID: Uuid('shipping-service-interface bugproblem in API', this.UUID_NAMESPACE),
-                        relation: IssueRelation.DEPENDS
-                    }
-                ], IssueType.BUG, [], [
-                { componentID: Uuid('order-service', this.UUID_NAMESPACE) }
-            ], []),
-            new Issue('order-service feature request', 'updating to fr of shipping service API', true,
-                [], IssueType.FEATURE_REQUEST, [], [
-                { componentID: Uuid('order-service', this.UUID_NAMESPACE) }
-            ], []),
-            new Issue('shipping-service-interface bug', 'problem in API', true,
-                [
-                    {
-                        issueID: Uuid('shipping-service bugsome problem within the component', this.UUID_NAMESPACE),
-                        relation: IssueRelation.DEPENDS
-                    }
-                ], IssueType.BUG, [], [
-                {
-                    componentID: Uuid('shipping-service', this.UUID_NAMESPACE),
-                    interfaceID: Uuid('shipping-service-interface', this.UUID_NAMESPACE)
-                }
-            ], []),
-            new Issue('shipping-service bug', 'some problem within the component', true,
-                [], IssueType.BUG, [], [
-                {
-                    componentID: Uuid('shipping-service', this.UUID_NAMESPACE),
-                }
-            ], []),
-            new Issue('second shipping-service bug', 'some problem within the component', true,
-                [], IssueType.BUG, [], [
-                {
-                    componentID: Uuid('shipping-service', this.UUID_NAMESPACE),
-                }
-            ], []),
-            new Issue('cross-component feature request', 'applying to update in another API', true,
-                [
-                    {
-                        issueID: Uuid('payment-service-interface feature requestA new feature in this API', this.UUID_NAMESPACE),
-                        relation: IssueRelation.DEPENDS
-                    }
-                ], IssueType.FEATURE_REQUEST, [], [
-                { componentID: Uuid('order-service', this.UUID_NAMESPACE) },
-                { componentID: Uuid('shipping-service', this.UUID_NAMESPACE) }
-            ], []),
-            new Issue('payment-service-interface feature request', 'A new feature in this API', true,
-                [], IssueType.FEATURE_REQUEST, [], [
-                {
-                    componentID: Uuid('payment-service', this.UUID_NAMESPACE),
-                    interfaceID: Uuid('payment-service-interface', this.UUID_NAMESPACE)
-                }
-            ], []),
-        ];
+
 
         // #### Other data ####
 

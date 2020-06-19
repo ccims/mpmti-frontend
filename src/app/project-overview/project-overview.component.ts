@@ -1,5 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Project } from '../types/types-interfaces';
+import { Store, select } from '@ngrx/store';
+import { State } from '../reducers/state';
+import { selectProject } from '../reducers/projects.selector';
+import { ActivatedRoute } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-project-overview',
@@ -8,16 +14,15 @@ import { Project } from '../types/types-interfaces';
 })
 export class ProjectOverviewComponent implements OnInit {
 
-    @Input()
-    private project: Project;
+    project: Observable<Project>;
 
-    constructor() { }
+
+    constructor(private store: Store<State>, private route: ActivatedRoute) { }
 
     ngOnInit() {
-    }
-
-    public getProject(): Project {
-        return this.project;
+        this.project = this.route.paramMap.pipe(
+            switchMap((paramMap) => this.store.pipe(select(selectProject, paramMap.get('project')))),
+        );
     }
 
 }

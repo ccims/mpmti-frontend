@@ -11,7 +11,7 @@
 </mat-slide-toggle>
 <div class="component-accordion">
     <mat-accordion multi="true">
-        <mat-expansion-panel *ngFor="let component of this.getComponents();">
+        <mat-expansion-panel *ngFor="let component of components | async">
             <mat-expansion-panel-header>
                 <mat-panel-title>
                     {{component.componentName}}

@@ -1,5 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Project, ProjectComponent, ProjectComponentInterface } from '../types/types-interfaces';
+import { Observable } from 'rxjs';
+import { Store, select } from '@ngrx/store';
+import { ActivatedRoute } from '@angular/router';
+import { State } from '../reducers/state';
+import { switchMap } from 'rxjs/operators';
+import { selectProject } from '../reducers/projects.selector';
 
 @Component({
     selector: 'app-project-issues',
@@ -8,15 +14,15 @@ import { Project, ProjectComponent, ProjectComponentInterface } from '../types/t
 })
 export class ProjectIssuesComponent implements OnInit {
 
-    @Input()
-    private project: Project;
-    constructor() { }
+    project: Observable<Project>;
+
+
+    constructor(private store: Store<State>, private route: ActivatedRoute) { }
 
     ngOnInit() {
-    }
-
-    public getProject(): Project {
-        return this.project;
+        this.project = this.route.paramMap.pipe(
+            switchMap((paramMap) => this.store.pipe(select(selectProject, paramMap.get('project')))),
+        );
     }
 
 }

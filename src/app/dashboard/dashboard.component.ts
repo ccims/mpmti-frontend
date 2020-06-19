@@ -2,6 +2,10 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Project, ProjectInformation } from '../types/types-interfaces';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/create-project-dialog.component';
+import { Store, select } from '@ngrx/store';
+import { State } from '../reducers/state';
+import { selectProjectList } from '../reducers/projects.selector';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-dashboard',
@@ -11,18 +15,19 @@ import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/c
 export class DashboardComponent implements OnInit, OnDestroy {
 
     private username: string;
-    private currentProject: ProjectInformation;
-    private openSidenavContent: string = 'DashboardOverview';
-    private projects: ProjectInformation[];
+    //private projects: ProjectInformation[];
+    public projectList: Observable<Project[]>;
 
-    constructor(public dialog: MatDialog) {
+    constructor(public dialog: MatDialog, private store: Store<State>) {
     }
 
     ngOnInit() {
         this.username = localStorage.getItem('username');
 
+        this.projectList = this.store.pipe(select(selectProjectList));
+
         // TODO load projects of user from backend
-        this.projects = [
+        let projects = [
             {
                 generalInformation: {
                     projectName: 'sandros-project',
@@ -96,31 +101,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         project.generalInformation.projectOwnerName = this.username;
         // TODO send 'project' it to backend
         // TODO if backend answeres with 201 add to projects, otherwise throw an error
-        this.projects.push(project);
-    }
-
-    public setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
-        this.projects.forEach((project) => {
-            if (project.generalInformation.projectName === projectName) {
-                this.currentProject = project;
-            }
-        });
-        this.openSidenavContent = sidenavContentComponent;
+        //this.projects.push(project);
     }
 
     public logout(): void {
         localStorage.removeItem('username');
         localStorage.removeItem('token'); // TODO implement correctly
-    }
-    public getProjects(): ProjectInformation[] {
-        return this.projects;
-    }
-
-    public getOpenSidenavContent(): string {
-        return this.openSidenavContent;
-    }
-
-    public getCurrentProject(): ProjectInformation {
-        return this.currentProject;
     }
 }

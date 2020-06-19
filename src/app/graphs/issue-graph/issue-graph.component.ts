@@ -1,35 +1,35 @@
-import { Component, ViewChild, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, ViewChild, Input, OnChanges, OnInit, SimpleChanges, OnDestroy } from '@angular/core';
 import GraphEditor from '@ustutt/grapheditor-webcomponent/lib/grapheditor';
 import { Node } from '@ustutt/grapheditor-webcomponent/lib/node';
-import { Edge, Point, DraggedEdge } from '@ustutt/grapheditor-webcomponent/lib/edge';
-import { ProjectInformation, ProjectComponent, SystemArchitectureEdgeListNode, IssueType, IssueRelation } from 'src/app/types/types-interfaces';
+import { Edge, Point, DraggedEdge, edgeId } from '@ustutt/grapheditor-webcomponent/lib/edge';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { Issue } from 'src/app/model/issue';
 import { Rect } from '@ustutt/grapheditor-webcomponent/lib/util';
 import { GroupBehaviour } from '@ustutt/grapheditor-webcomponent/lib/grouping';
 import { DynamicTemplateContext, DynamicNodeTemplate } from '@ustutt/grapheditor-webcomponent/lib/dynamic-templates/dynamic-template';
 import { LinkHandle } from '@ustutt/grapheditor-webcomponent/lib/link-handle';
 import { IssueGroupContainerParentBehaviour, IssueGroupContainerBehaviour } from './group-behaviours';
-import { Store } from '@ngrx/store';
-import { State } from 'src/app/reducers/state';
+import { Store, select } from '@ngrx/store';
+import { State, Project, Component as ProjectComponent, Issue, IssueType, IssueRelationType } from 'src/app/reducers/state';
+import { selectIssueGraphData } from 'src/app/reducers/issueGraph.selector';
 
 @Component({
     selector: 'app-issue-graph',
     templateUrl: './issue-graph.component.html',
     styleUrls: ['./issue-graph.component.css']
 })
-export class IssueGraphComponent implements OnChanges, OnInit {
+export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
     @ViewChild('graph', { static: true }) graph;
     @ViewChild('minimap', { static: true }) minimap;
 
     currentVisibleArea: Rect = { x: 0, y: 0, width: 1, height: 1 };
 
-    @Input() project: ProjectInformation;
-    @Input() components: ProjectComponent[];
-    @Input() issues: Issue[];
-    @Input() systemArchitectureGraphEdges: SystemArchitectureEdgeListNode[];
+    @Input() project: Project;
+    @Input() graphId: string = 'A';
+
+    graphDataSubscription: Subscription;
+
 
     private graphInitialized = false;
 
@@ -43,12 +43,14 @@ export class IssueGraphComponent implements OnChanges, OnInit {
     private issueToRelatedNode: Map<string, Set<string>> = new Map();
     private issueToGraphNode: Map<string, Set<string>> = new Map();
 
-    constructor(private store: Store<State>) {
-        store.subscribe(state => console.log(state));
-    }
+    constructor(private store: Store<State>) {}
 
     ngOnInit() {
         this.initGraph();
+    }
+
+    ngOnDestroy() {
+        this.graphDataSubscription?.unsubscribe();
     }
 
     initGraph() {
@@ -207,28 +209,49 @@ export class IssueGraphComponent implements OnChanges, OnInit {
 
     ngOnChanges(changes: SimpleChanges) {
         this.initGraph();
-        const graph: GraphEditor = this.graph.nativeElement;
-        let needRender = false;
 
-        // tslint:disable-next-line: max-line-length
-        if (changes.project?.previousValue?.generalInformation?.projectName !== changes.project?.currentValue?.generalInformation?.projectName) {
-            this.loadProjectSettings(changes.project?.currentValue?.generalInformation?.projectName);
+        if (changes.project.previousValue?.projectId !== changes.project.currentValue?.projectId) {
+            this.loadProjectSettings(this.project?.projectId);
 
-            // reset graph if project has changed!
+            const graph: GraphEditor = this.graph.nativeElement;
             graph.edgeList = [];
             graph.nodeList = [];
             graph.groupingManager.clearAllGroups();
-            needRender = true;
-            // TODO reset private fields of this class
+
+            // TODO reset private fields
+
+            graph.completeRender();
+            graph.zoomToBoundingBox();
+
+            this.graphDataSubscription?.unsubscribe();
+            this.graphDataSubscription = this.store
+                .pipe(select(selectIssueGraphData, {projectId: this.project?.projectId, issueGraphId: this.graphId}))
+                .subscribe(issueGraphData => {
+                    this.updateGraph(issueGraphData.components, issueGraphData.issues);
+                });
         }
+    }
 
+    updateGraph(components: ProjectComponent[], issues: Issue[]) {
 
-        if (changes.components != null) {
-            needRender = true;
-            this.components.forEach(comp => {
-                const position: Point = this.nodePositions?.[comp.uuid] ?? {x: 0, y: 0};
-                const componentNode = {
-                    id: comp.uuid,
+        const graph: GraphEditor = this.graph.nativeElement;
+        let needRender = false;
+
+        const interfacesToRemove = new Set<string>();
+        graph.nodeList.forEach(node => {
+            if (node.type === 'interface') {
+                interfacesToRemove.add(node.id.toString());
+            }
+        });
+
+        const edgesToRemove = new Set<string>();
+
+        components.forEach(comp => {
+            let componentNode = graph.getNode(comp.componentId);
+            if (componentNode == null) {
+                const position: Point = this.nodePositions?.[comp.componentId] ?? {x: 0, y: 0};
+                componentNode = {
+                    id: comp.componentId,
                     ...position,
                     title: comp.componentName,
                     type: 'component',
@@ -237,10 +260,32 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                 };
                 graph.addNode(componentNode);
                 this.addIssueGroupContainer(graph, componentNode);
-                comp.interfaces.forEach(inter => {
-                    const position: Point = this.nodePositions?.[inter.uuid] ?? {x: 150, y: 0};
-                    const interfaceNode = {
-                        id: inter.uuid,
+                needRender = true;
+            } else {
+                componentNode.title = comp.componentName;
+                componentNode.data = comp;
+                graph.getEdgesBySource(comp.componentId).forEach(edge => edgesToRemove.add(edgeId(edge)));
+                graph.getEdgesByTarget(comp.componentId).forEach(edge => edgesToRemove.add(edgeId(edge)));
+                needRender = true;
+            }
+            Object.keys(comp.interfaces).forEach(interfaceId => {
+                // mark interface as used
+                interfacesToRemove.delete(interfaceId);
+
+                const inter = comp.interfaces[interfaceId];
+                let interfaceNode = graph.getNode(interfaceId);
+
+                // mark interface edge as used
+                const interfaceEdgeId = edgeId({
+                    source: comp.componentId,
+                    target: inter.interfaceId,
+                });
+                edgesToRemove.delete(interfaceEdgeId);
+
+                if (interfaceNode == null) {
+                    const position: Point = this.nodePositions?.[inter.interfaceId] ?? {x: 150, y: 0};
+                    interfaceNode = {
+                        id: inter.interfaceId,
                         ...position,
                         title: inter.interfaceName,
                         type: 'interface',
@@ -250,49 +295,59 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                     graph.addNode(interfaceNode);
                     this.addIssueGroupContainer(graph, interfaceNode);
                     const edge = {
-                        source: comp.uuid,
-                        target: inter.uuid,
+                        source: comp.componentId,
+                        target: inter.interfaceId,
                         type: 'interface',
                         dragHandles: []
                     };
                     graph.addEdge(edge);
-                });
+                    needRender = true;
+                } else {
+                    interfaceNode.title = inter.interfaceName;
+                    interfaceNode.data = inter;
+                    needRender = true;
+                }
             });
-        }
-
-        if (changes.systemArchitectureGraphEdges != null) {
-            needRender = true;
-            this.systemArchitectureGraphEdges.forEach(graphEdges => {
-                graphEdges.edgesToInterfaces.forEach(toInterface => {
+            comp.componentRelations.forEach(relation => {
+                if (relation.targetType === 'component') {
                     const edge = {
-                        source: graphEdges.componentUuid,
-                        target: toInterface,
-                        type: 'interface-connect',
-                        markerEnd: {
-                            template: 'interface-connector',
-                            relativeRotation: 0,
-                        }
-                    };
-                    graph.addEdge(edge);
-                });
-                graphEdges.edgesToComponents.forEach(toComponent => {
-                    const edge = {
-                        source: graphEdges.componentUuid,
-                        target: toComponent,
+                        source: comp.componentId,
+                        target: relation.targetId,
                         type: 'component-connect',
                         markerEnd: {
                             template: 'arrow',
                             relativeRotation: 0,
                         }
                     };
-                    graph.addEdge(edge);
-                });
+                    const eId = edgeId(edge);
+                    if (!edgesToRemove.has(eId)) {
+                        graph.addEdge(edge);
+                        needRender = true;
+                    }
+                    edgesToRemove.delete(eId);
+                }
+                if (relation.targetType === 'interface') {
+                    const edge = {
+                        source: comp.componentId,
+                        target: relation.targetId,
+                        type: 'interface-connect',
+                        markerEnd: {
+                            template: 'interface-connector',
+                            relativeRotation: 0,
+                        }
+                    };
+                    const eId = edgeId(edge);
+                    if (!edgesToRemove.has(eId)) {
+                        graph.addEdge(edge);
+                        needRender = true;
+                    }
+                    edgesToRemove.delete(eId);
+                }
             });
-        }
+        });
 
-        if (changes.issues != null) {
-            this.updateIssueNodes();
-        }
+        this.updateIssueNodes(issues);
+
 
         if (needRender) {
             graph.completeRender();
@@ -440,20 +495,20 @@ export class IssueGraphComponent implements OnChanges, OnInit {
     }
 
 
-    private updateIssueNodes() {
+    private updateIssueNodes(issues: Issue[]) {
         const relatedNodesToIssues = new Map<string, Set<string>>();
-        this.issues.forEach(issue => {
-            this.issuesById.set(issue.id, issue);
+        issues.forEach(issue => {
+            this.issuesById.set(issue.issueId, issue);
             const relatedNodes = new Set<string>();
-            issue.getLocations().forEach(loc => {
-                const relatedNode = loc.interfaceID ?? loc.componentID;
+            issue.locations.forEach(loc => {
+                const relatedNode = loc.locationId;
                 relatedNodes.add(relatedNode);
                 if (!relatedNodesToIssues.has(relatedNode)) {
                     relatedNodesToIssues.set(relatedNode, new Set());
                 }
-                relatedNodesToIssues.get(relatedNode).add(issue.id);
+                relatedNodesToIssues.get(relatedNode).add(issue.issueId);
             });
-            this.issueToRelatedNode.set(issue.id, relatedNodes);
+            this.issueToRelatedNode.set(issue.issueId, relatedNodes);
         });
 
         const graph: GraphEditor = this.graph.nativeElement;
@@ -466,9 +521,9 @@ export class IssueGraphComponent implements OnChanges, OnInit {
             const features = new Set<string>();
             issueSet.forEach(issueId => {
                 const issue = this.issuesById.get(issueId);
-                if (issue.getType() === IssueType.BUG) {
+                if (issue.type === IssueType.BUG) {
                     bugs.add(issueId);
-                } else if (issue.getType() === IssueType.FEATURE_REQUEST) {
+                } else if (issue.type === IssueType.FEATURE_REQUEST) {
                     features.add(issueId);
                 } else {
                     undecided.add(issueId);
@@ -552,17 +607,17 @@ export class IssueGraphComponent implements OnChanges, OnInit {
                 // fill target sets
                 issues.forEach(issueId => {
                     const issue = this.issuesById.get(issueId);
-                    issue.getLinkedIssues().forEach(linked => {
-                        const targetIssueId = linked.issueID;
+                    issue.relatedIssues.forEach(linked => {
+                        const targetIssueId = linked.relatedIssueID;
                         const targetNodeIds = this.issueToGraphNode.get(targetIssueId);
-                        if (linked.relation === IssueRelation.DEPENDS) {
+                        if (linked.relationType === IssueRelationType.DEPENDS) {
                             targetNodeIds.forEach(targetNodeId => {
                                 if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
                                     return; // dont generate edges to the same node or to the current component
                                 }
                                 dependsOnTargets.add(targetNodeId);
                             });
-                        } else if (linked.relation === IssueRelation.DUPLICATES) {
+                        } else if (linked.relationType === IssueRelationType.DUPLICATES) {
                             targetNodeIds.forEach(targetNodeId => {
                                 if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
                                     return; // dont generate edges to the same node or to the current component

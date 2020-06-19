@@ -51,6 +51,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.graphDataSubscription?.unsubscribe();
+        this.saveNodePositionsSubscription?.unsubscribe();
     }
 
     initGraph() {
@@ -211,7 +212,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         this.initGraph();
 
         if (changes.project.previousValue?.projectId !== changes.project.currentValue?.projectId) {
-            this.loadProjectSettings(this.project?.projectId);
+            this.saveNodePositionsSubscription?.unsubscribe();
 
             const graph: GraphEditor = this.graph.nativeElement;
             graph.edgeList = [];
@@ -222,6 +223,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
             graph.completeRender();
             graph.zoomToBoundingBox();
+
+            this.loadProjectSettings(this.project?.projectId);
 
             this.graphDataSubscription?.unsubscribe();
             this.graphDataSubscription = this.store
@@ -465,28 +468,28 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         console.log('Clicked on another type of noode:', node);
     }
 
-    private unsubscribe() {
-        this.saveNodePositionsSubscription?.unsubscribe();
-    }
-
-    private loadProjectSettings(project) {
-        const key = `MPMTI-Project_${project}`;
-        this.unsubscribe();
-        const data = project != null ? localStorage.getItem(key) : null;
-        if (data != null && data !== '') {
-            this.nodePositions = JSON.parse(data);
-        } else {
-            this.nodePositions = {};
-        }
-        if (project != null) {
+    private loadProjectSettings(projectId: string) {
+        const key = `MPMTI-Project_${projectId}`;
+        if (projectId != null) {
+            const data = localStorage.getItem(key);
+            if (data != null && data !== '') {
+                this.nodePositions = JSON.parse(data);
+            } else {
+                this.nodePositions = {};
+            }
             this.saveNodePositionsSubscription = this.saveNodePositionsSubject.pipe(
                 debounceTime(300)
             ).subscribe(() => {
+                if (projectId !== this.project?.projectId) {
+                    return;
+                }
                 if (this.nodePositions != null) {
                     const newData = JSON.stringify(this.nodePositions);
                     localStorage.setItem(key, newData);
                 }
             });
+        } else {
+            this.nodePositions = {};
         }
 
         this.issuesById = new Map();

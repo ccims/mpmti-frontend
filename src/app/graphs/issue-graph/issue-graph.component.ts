@@ -11,6 +11,8 @@ import { GroupBehaviour } from '@ustutt/grapheditor-webcomponent/lib/grouping';
 import { DynamicTemplateContext, DynamicNodeTemplate } from '@ustutt/grapheditor-webcomponent/lib/dynamic-templates/dynamic-template';
 import { LinkHandle } from '@ustutt/grapheditor-webcomponent/lib/link-handle';
 import { IssueGroupContainerParentBehaviour, IssueGroupContainerBehaviour } from './group-behaviours';
+import { Store } from '@ngrx/store';
+import { State } from 'src/app/reducers/state';
 
 @Component({
     selector: 'app-issue-graph',
@@ -41,7 +43,9 @@ export class IssueGraphComponent implements OnChanges, OnInit {
     private issueToRelatedNode: Map<string, Set<string>> = new Map();
     private issueToGraphNode: Map<string, Set<string>> = new Map();
 
-    constructor() { }
+    constructor(private store: Store<State>) {
+        store.subscribe(state => console.log(state));
+    }
 
     ngOnInit() {
         this.initGraph();

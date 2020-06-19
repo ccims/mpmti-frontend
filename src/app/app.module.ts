@@ -22,6 +22,8 @@ import { CreateComponentDialogComponent } from './dialogs/create-component-dialo
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
 import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
 import { GraphsModule } from './graphs/graphs.module';
+import { StoreModule } from '@ngrx/store';
+import { reducers, metaReducers } from './reducers';
 
 
 @NgModule({
@@ -47,7 +49,10 @@ import { GraphsModule } from './graphs/graphs.module';
         AppRoutingModule,
         BrowserAnimationsModule,
         MaterialModule,
-        FormsModule, ReactiveFormsModule
+        FormsModule, ReactiveFormsModule,
+        StoreModule.forRoot(reducers, {
+            metaReducers
+        })
     ],
     entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent],
     providers: [

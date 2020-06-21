@@ -1,4 +1,4 @@
-import { State, ProjectsState, ComponentsState } from './state';
+import { State, ProjectsState, ComponentsState, IssuesState } from './state';
 import { selectProjects } from './projects.selector';
 import { createSelector } from '@ngrx/store';
 import { selectComponents } from './components.selector';
@@ -9,43 +9,46 @@ const idenititySelector = (state: State) => state;
 
 export const selectIssueGraphData = createSelector(
     idenititySelector,
-    (state: State, props: {projectId: string, issueGraphId: string}) => {
+    (state: State, props: {projectId: string}) => {
         const projectId = props.projectId;
-        const issueGraphId = props.issueGraphId;
+        const issueGraphId = projectId;
         const proj = state.projects[projectId];
         if (proj == null) {
             return {
                 components: [],
-                issues: [],
+                issues: {},
                 graph: {},
             };
         }
+
+        const issuesToInclude = new Set<string>();
+
         const componentsList = [];
         const componentIds: string[] = proj.components ?? [];
-        const locationIdSet = new Set(componentIds);
         componentIds.forEach((componentId) => {
             const component = state.components[componentId];
             if (component != null) {
                 componentsList.push(component);
-                // add interface ids as issue locations
-                Object.keys(component.interfaces).forEach(interfaceId => locationIdSet.add(interfaceId));
+                component.issues.forEach(issueId => issuesToInclude.add(issueId));
+                Object.keys(component.interfaces).forEach(interfaceId => {
+                    component.interfaces[interfaceId].issues?.forEach(issueId => issuesToInclude.add(issueId));
+                });
             }
         });
 
-        const issueList = [];
-        const issueNamespace = state.issueNamespaces[proj.issueNamespace] ?? {};
-        Object.keys(issueNamespace).forEach(issueId => {
-            const issue = issueNamespace[issueId];
-            if (!issue.locations.some(loc => locationIdSet.has(loc.locationId))) {
-                return; // No location matches a interface or component id
+        const issues: IssuesState = {};
+        issuesToInclude.forEach(issueId => {
+            const issue = state.issues[issueId];
+            if (issue == null) {
+                return; // No issue with that id
             }
             // TODO filter relevant issues
-            issueList.push(issue);
+            issues[issue.id] = issue;
         });
 
         return {
             components: componentsList,
-            issues: issueList,
+            issues: issues,
             graph: state.issueGraphs[issueGraphId] ?? {},
         };
     }

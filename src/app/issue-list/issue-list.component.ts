@@ -18,8 +18,8 @@ export class IssueListComponent implements OnChanges {
     constructor(private store: Store<State>) {}
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.project.previousValue?.projectId !== changes.project.currentValue?.projectId) {
-            this.components = this.store.pipe(select(selectProjectComponentList, this.project?.projectId));
+        if (changes.project.previousValue?.id !== changes.project.currentValue?.id) {
+            this.components = this.store.pipe(select(selectProjectComponentList, this.project?.id));
         }
     }
 }

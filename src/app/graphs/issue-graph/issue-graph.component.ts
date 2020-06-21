@@ -10,7 +10,7 @@ import { DynamicTemplateContext, DynamicNodeTemplate } from '@ustutt/grapheditor
 import { LinkHandle } from '@ustutt/grapheditor-webcomponent/lib/link-handle';
 import { IssueGroupContainerParentBehaviour, IssueGroupContainerBehaviour } from './group-behaviours';
 import { Store, select } from '@ngrx/store';
-import { State, Project, Component as ProjectComponent, Issue, IssueType, IssueRelationType } from 'src/app/reducers/state';
+import { State, Project, Component as ProjectComponent, Issue, IssueType, IssueRelationType, IssuesState } from 'src/app/reducers/state';
 import { selectIssueGraphData } from 'src/app/reducers/issueGraph.selector';
 
 @Component({
@@ -39,7 +39,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         [prop: string]: Point;
     } = {};
 
-    private issuesById: Map<string, Issue> = new Map();
+    private issuesById: IssuesState = {};
     private issueToRelatedNode: Map<string, Set<string>> = new Map();
     private issueToGraphNode: Map<string, Set<string>> = new Map();
 
@@ -211,7 +211,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
     ngOnChanges(changes: SimpleChanges) {
         this.initGraph();
 
-        if (changes.project.previousValue?.projectId !== changes.project.currentValue?.projectId) {
+        if (changes.project.previousValue?.id !== changes.project.currentValue?.id) {
             this.saveNodePositionsSubscription?.unsubscribe();
 
             const graph: GraphEditor = this.graph.nativeElement;
@@ -219,23 +219,21 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             graph.nodeList = [];
             graph.groupingManager.clearAllGroups();
 
-            // TODO reset private fields
-
             graph.completeRender();
             graph.zoomToBoundingBox();
 
-            this.loadProjectSettings(this.project?.projectId);
+            this.loadProjectSettings(this.project?.id);
 
             this.graphDataSubscription?.unsubscribe();
             this.graphDataSubscription = this.store
-                .pipe(select(selectIssueGraphData, {projectId: this.project?.projectId, issueGraphId: this.graphId}))
+                .pipe(select(selectIssueGraphData, {projectId: this.project?.id}))
                 .subscribe(issueGraphData => {
                     this.updateGraph(issueGraphData.components, issueGraphData.issues);
                 });
         }
     }
 
-    updateGraph(components: ProjectComponent[], issues: Issue[]) {
+    updateGraph(components: ProjectComponent[], issues: IssuesState) {
 
         const graph: GraphEditor = this.graph.nativeElement;
         let needRender = false;
@@ -249,14 +247,16 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
         const edgesToRemove = new Set<string>();
 
+        const issueGroupParents: Node[] = [];
+
         components.forEach(comp => {
-            let componentNode = graph.getNode(comp.componentId);
+            let componentNode = graph.getNode(comp.id);
             if (componentNode == null) {
-                const position: Point = this.nodePositions?.[comp.componentId] ?? {x: 0, y: 0};
+                const position: Point = this.nodePositions?.[comp.id] ?? {x: 0, y: 0};
                 componentNode = {
-                    id: comp.componentId,
+                    id: comp.id,
                     ...position,
-                    title: comp.componentName,
+                    title: comp.name,
                     type: 'component',
                     data: comp,
                     relatedIssues: new Set<string>(),
@@ -265,12 +265,16 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 this.addIssueGroupContainer(graph, componentNode);
                 needRender = true;
             } else {
-                componentNode.title = comp.componentName;
-                componentNode.data = comp;
-                graph.getEdgesBySource(comp.componentId).forEach(edge => edgesToRemove.add(edgeId(edge)));
-                graph.getEdgesByTarget(comp.componentId).forEach(edge => edgesToRemove.add(edgeId(edge)));
-                needRender = true;
+                if (componentNode.data !== comp) { // Identity comparison works becaus e of redux store
+                    componentNode.title = comp.name;
+                    componentNode.data = comp;
+                    needRender = true;
+                }
+                graph.getEdgesBySource(comp.id).forEach(edge => edgesToRemove.add(edgeId(edge)));
+                graph.getEdgesByTarget(comp.id).forEach(edge => edgesToRemove.add(edgeId(edge)));
             }
+            this.updateIssuesForNode(graph, componentNode, comp.issues, issues);
+            issueGroupParents.push(componentNode);
             Object.keys(comp.interfaces).forEach(interfaceId => {
                 // mark interface as used
                 interfacesToRemove.delete(interfaceId);
@@ -280,7 +284,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
                 // mark interface edge as used
                 const interfaceEdgeId = edgeId({
-                    source: comp.componentId,
+                    source: comp.id,
                     target: inter.interfaceId,
                 });
                 edgesToRemove.delete(interfaceEdgeId);
@@ -298,7 +302,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     graph.addNode(interfaceNode);
                     this.addIssueGroupContainer(graph, interfaceNode);
                     const edge = {
-                        source: comp.componentId,
+                        source: comp.id,
                         target: inter.interfaceId,
                         type: 'interface',
                         dragHandles: []
@@ -306,15 +310,19 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     graph.addEdge(edge);
                     needRender = true;
                 } else {
-                    interfaceNode.title = inter.interfaceName;
-                    interfaceNode.data = inter;
-                    needRender = true;
+                    if (interfaceNode.data !== inter) { // Identity comparison works becaus e of redux store
+                        interfaceNode.title = inter.interfaceName;
+                        interfaceNode.data = inter;
+                        needRender = true;
+                    }
                 }
+                this.updateIssuesForNode(graph, interfaceNode, inter.issues, issues);
+                issueGroupParents.push(interfaceNode);
             });
             comp.componentRelations.forEach(relation => {
                 if (relation.targetType === 'component') {
                     const edge = {
-                        source: comp.componentId,
+                        source: comp.id,
                         target: relation.targetId,
                         type: 'component-connect',
                         markerEnd: {
@@ -331,7 +339,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 }
                 if (relation.targetType === 'interface') {
                     const edge = {
-                        source: comp.componentId,
+                        source: comp.id,
                         target: relation.targetId,
                         type: 'interface-connect',
                         markerEnd: {
@@ -349,13 +357,176 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             });
         });
 
-        this.updateIssueNodes(issues);
+        issueGroupParents.forEach(node => this.updateIssueRelations(graph, node, issues));
 
+        this.issuesById = issues;
 
-        if (needRender) {
+        if (true) {
             graph.completeRender();
             graph.zoomToBoundingBox();
         }
+    }
+
+    private addIssueGroupContainer(graph: GraphEditor, node: Node) {
+        const gm = graph.groupingManager;
+        gm.markAsTreeRoot(node.id);
+        graph.groupingManager.setGroupBehaviourOf(node.id, new IssueGroupContainerParentBehaviour());
+
+        const issueGroupContainerNode = {
+            id: `${node.id}__issue-group-container`,
+            type: 'issue-group-container',
+            dynamicTemplate: 'issue-group-container',
+            x: 0,
+            y: 0,
+            position: 'bottom',
+            issueGroupNodes: new Set<string>(),
+        };
+        graph.addNode(issueGroupContainerNode);
+        gm.addNodeToGroup(node.id, issueGroupContainerNode.id);
+        gm.setGroupBehaviourOf(issueGroupContainerNode.id, new IssueGroupContainerBehaviour());
+    }
+
+    private updateIssuesForNode(graph: GraphEditor, parentNode: Node, issueIds: string[], issues: IssuesState) {
+        this.issueToRelatedNode.set(parentNode.id.toString(), new Set(issueIds));
+        const issuesToAdd = new Set<string>();
+        const issuesToRemove = new Set<string>(parentNode.relatedIssues);
+        const issuesToUpdate = new Set<string>();
+        issueIds.forEach(issueId => {
+            if (issues[issueId] == null) {
+                return;
+            }
+            if (!this.issueToGraphNode.has(issueId)) {
+                this.issueToGraphNode.set(issueId, new Set<string>());
+            }
+            if (issuesToRemove.has(issueId)) {
+                issuesToUpdate.add(issueId);
+            } else {
+                issuesToAdd.add(issueId);
+            }
+            issuesToRemove.delete(issueId);
+        });
+
+        issuesToAdd.forEach(issueId => this.addIssueToNode(graph, parentNode, issues[issueId]));
+        issuesToRemove.forEach(issueId => this.removeIssueFromNode(graph, parentNode, issues[issueId]));
+    }
+
+    private addIssueToNode(graph: GraphEditor, parentNode: Node, issue: Issue) {
+        let issueFolderId = `${parentNode.id}__undecided`;
+        let issueType = 'issue-undecided';
+        if (issue.type === IssueType.BUG) {
+            issueFolderId = `${parentNode.id}__bug`;
+            issueType = 'issue-bug';
+        } else if (issue.type === IssueType.FEATURE_REQUEST) {
+            issueFolderId = `${parentNode.id}__feature`;
+            issueType = 'issue-feature';
+        }
+
+        const gm = graph.groupingManager;
+        const issueGroupContainer = graph.getNode(`${parentNode.id}__issue-group-container`);
+        let issueFolderNode = graph.getNode(issueFolderId);
+        if (issueFolderNode == null) {
+            issueFolderNode = {
+                id: issueFolderId,
+                type: issueType,
+                x: 0,
+                y: 0,
+                issues: new Set<string>(),
+                issueCount: 0,
+            };
+            graph.addNode(issueFolderNode);
+            gm.addNodeToGroup(issueGroupContainer.id, issueFolderId);
+        }
+        issueFolderNode.issues.add(issue.id);
+        issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
+
+
+        this.issueToGraphNode.get(issue.id).add(issueFolderId);
+    }
+
+    private removeIssueFromNode(graph: GraphEditor, parentNode: Node, issue: Issue) {
+        let issueFolderId = `${parentNode.id}__undecided`;
+        let issueType = 'issue-undecided';
+        if (issue.type === IssueType.BUG) {
+            issueFolderId = `${parentNode.id}__bug`;
+            issueType = 'issue-bug';
+        } else if (issue.type === IssueType.FEATURE_REQUEST) {
+            issueFolderId = `${parentNode.id}__feature`;
+            issueType = 'issue-feature';
+        }
+
+        this.issueToGraphNode.get(issue.id).delete(issueFolderId);
+
+        const gm = graph.groupingManager;
+        const issueFolderNode = graph.getNode(issueFolderId);
+        if (issueFolderNode != null) {
+            issueFolderNode.issues.remove(issue.id);
+            issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
+            gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
+            graph.removeNode(issueFolderNode);
+        }
+    }
+
+    private updateIssueRelations(graph: GraphEditor, parentNode: Node, issues: IssuesState) {
+        const issueGroupContainer = graph.getNode(`${parentNode.id}__issue-group-container`);
+        if (issueGroupContainer.issueGroupNodes.size === 0) {
+            return;
+        }
+
+        issueGroupContainer.issueGroupNodes.forEach(issueFolderId => {
+            const issueFolderNode = graph.getNode(issueFolderId);
+            const edgesToDelete = new Set<string>();
+            graph.getEdgesBySource(issueFolderId).forEach(edge => {
+                edgesToDelete.add(edgeId(edge));
+                // TODO reset sets
+                edge.sourceIssues?.clear();
+            });
+
+            issueFolderNode.issues.forEach(issueId => {
+                const issue = issues[issueId];
+
+                if (issue == null) {
+                    return; // should not happen but just to be safe
+                }
+
+                issue.relatedIssues.forEach(rel => {
+                    this.issueToGraphNode.get(rel.relatedIssueID).forEach(targetNodeId => {
+
+                        let edgeType = 'relatedTo';
+                        if (rel.relationType === IssueRelationType.DEPENDS) {
+                            edgeType = 'dependency';
+                        }
+                        if (rel.relationType === IssueRelationType.DUPLICATES) {
+                            edgeType = 'duplicate';
+                        }
+
+                        const relationEdgeId = `s${issueFolderId}t${targetNodeId}r${edgeType}`;
+                        edgesToDelete.delete(relationEdgeId);
+
+                        let relationEdge = graph.getEdge(relationEdgeId);
+
+                        if (relationEdge == null) {
+                            relationEdge = {
+                                id: relationEdgeId,
+                                source: issueFolderId,
+                                target: targetNodeId,
+                                type: edgeType,
+                                markerEnd: {
+                                    template: 'arrow',
+                                    relativeRotation: 0,
+                                },
+                                dragHandles: [],
+                                sourceIssues: new Set<string>(),
+                            };
+                            graph.addEdge(relationEdge);
+                        }
+
+                        relationEdge.sourceIssues.add(issueId);
+                    });
+                });
+            });
+
+            edgesToDelete.forEach(edgeId => graph.removeEdge(edgeId));
+        });
     }
 
     private onCreateEdge = (edge: DraggedEdge) => {
@@ -465,7 +636,11 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             console.log('Clicked on interface:', node);
             return;
         }
-        console.log('Clicked on another type of noode:', node);
+        if (node.type.startsWith('issue-')) {
+            console.log('Clicked on an issue folder node:', node);
+            return;
+        }
+        console.log('Clicked on another type of node:', node);
     }
 
     private loadProjectSettings(projectId: string) {
@@ -480,7 +655,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             this.saveNodePositionsSubscription = this.saveNodePositionsSubject.pipe(
                 debounceTime(300)
             ).subscribe(() => {
-                if (projectId !== this.project?.projectId) {
+                if (projectId !== this.project?.id) {
                     return;
                 }
                 if (this.nodePositions != null) {
@@ -492,216 +667,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             this.nodePositions = {};
         }
 
-        this.issuesById = new Map();
+        this.issuesById = {};
         this.issueToRelatedNode = new Map();
         this.issueToGraphNode = new Map();
-    }
-
-
-    private updateIssueNodes(issues: Issue[]) {
-        const relatedNodesToIssues = new Map<string, Set<string>>();
-        issues.forEach(issue => {
-            this.issuesById.set(issue.issueId, issue);
-            const relatedNodes = new Set<string>();
-            issue.locations.forEach(loc => {
-                const relatedNode = loc.locationId;
-                relatedNodes.add(relatedNode);
-                if (!relatedNodesToIssues.has(relatedNode)) {
-                    relatedNodesToIssues.set(relatedNode, new Set());
-                }
-                relatedNodesToIssues.get(relatedNode).add(issue.issueId);
-            });
-            this.issueToRelatedNode.set(issue.issueId, relatedNodes);
-        });
-
-        const graph: GraphEditor = this.graph.nativeElement;
-
-        relatedNodesToIssues.forEach((issueSet, nodeId) => {
-            const node = graph.getNode(nodeId);
-            node.relatedIssues = issueSet;
-            const undecided = new Set<string>();
-            const bugs = new Set<string>();
-            const features = new Set<string>();
-            issueSet.forEach(issueId => {
-                const issue = this.issuesById.get(issueId);
-                if (issue.type === IssueType.BUG) {
-                    bugs.add(issueId);
-                } else if (issue.type === IssueType.FEATURE_REQUEST) {
-                    features.add(issueId);
-                } else {
-                    undecided.add(issueId);
-                }
-            });
-            this.updateIssueGroupNode(graph, `${nodeId}__undecided`, nodeId, 'issue-undecided', undecided);
-            this.updateIssueGroupNode(graph, `${nodeId}__bug`, nodeId, 'issue-bug', bugs);
-            this.updateIssueGroupNode(graph, `${nodeId}__feature`, nodeId, 'issue-feature', features);
-        });
-
-        this.updateIssueEdges(graph, relatedNodesToIssues);
-
-        graph.completeRender();
-    }
-
-    private addIssueGroupContainer(graph: GraphEditor, node: Node) {
-        const gm = graph.groupingManager;
-        gm.markAsTreeRoot(node.id);
-        graph.groupingManager.setGroupBehaviourOf(node.id, new IssueGroupContainerParentBehaviour());
-
-        const issueGroupContainerNode = {
-            id: `${node.id}__issue-group-container`,
-            type: 'issue-group-container',
-            dynamicTemplate: 'issue-group-container',
-            x: 0,
-            y: 0,
-            position: 'bottom',
-            issueGroupNodes: new Set<string>(),
-        };
-        graph.addNode(issueGroupContainerNode);
-        gm.addNodeToGroup(node.id, issueGroupContainerNode.id);
-        gm.setGroupBehaviourOf(issueGroupContainerNode.id, new IssueGroupContainerBehaviour());
-    }
-
-    private updateIssueGroupNode(graph: GraphEditor, nodeId: string, relatedNodeId: string, issueType: string, issueSet: Set<string>) {
-        const gm = graph.groupingManager;
-        let issueGroupNode = graph.getNode(nodeId);
-        const issueGroupContainer = graph.getNode(`${relatedNodeId}__issue-group-container`);
-        if (issueSet.size > 0) {
-            if (issueGroupNode == null) {
-                issueGroupNode = {
-                    id: nodeId,
-                    type: issueType,
-                    x: 0,
-                    y: 0,
-                };
-                graph.addNode(issueGroupNode);
-                gm.addNodeToGroup(issueGroupContainer.id, nodeId);
-            }
-            issueGroupNode.issues = issueSet;
-            issueGroupNode.issueCount = issueSet.size > 99 ? '99+' : issueSet.size;
-
-            issueSet.forEach(issueId => {
-                if (!this.issueToGraphNode.has(issueId)) {
-                    this.issueToGraphNode.set(issueId, new Set<string>());
-                }
-                this.issueToGraphNode.get(issueId).add(nodeId);
-            });
-        } else {
-            if (issueGroupNode != null) {
-                gm.removeNodeFromGroup(issueGroupContainer.id, nodeId);
-                graph.removeNode(issueGroupNode);
-            }
-        }
-    }
-
-    private updateIssueEdges(graph: GraphEditor, relatedNodeToIssues: Map<string, Set<string>>) {
-
-        relatedNodeToIssues.forEach((issueSet, relatedNodeId) => {
-            graph.groupingManager.getAllChildrenOf(relatedNodeId).forEach(sourceNodeId => {
-                const sourceNode = graph.getNode(sourceNodeId);
-                if (sourceNode?.type === 'issue-group-container') {
-                    return;
-                }
-                const issues = sourceNode?.issues ?? new Set<string>();
-                const oldEdges = graph.getEdgesBySource(sourceNodeId);
-                const relatedToTargets = new Set<string>();
-                const duplicateOfTargets = new Set<string>();
-                const dependsOnTargets = new Set<string>();
-
-                // fill target sets
-                issues.forEach(issueId => {
-                    const issue = this.issuesById.get(issueId);
-                    issue.relatedIssues.forEach(linked => {
-                        const targetIssueId = linked.relatedIssueID;
-                        const targetNodeIds = this.issueToGraphNode.get(targetIssueId);
-                        if (linked.relationType === IssueRelationType.DEPENDS) {
-                            targetNodeIds.forEach(targetNodeId => {
-                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
-                                    return; // dont generate edges to the same node or to the current component
-                                }
-                                dependsOnTargets.add(targetNodeId);
-                            });
-                        } else if (linked.relationType === IssueRelationType.DUPLICATES) {
-                            targetNodeIds.forEach(targetNodeId => {
-                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
-                                    return; // dont generate edges to the same node or to the current component
-                                }
-                                duplicateOfTargets.add(targetNodeId);
-                            });
-                        } else {
-                            targetNodeIds.forEach(targetNodeId => {
-                                if (targetNodeId === sourceNodeId || targetNodeId === relatedNodeId) {
-                                    return; // dont generate edges to the same node or to the current component
-                                }
-                                relatedToTargets.add(targetNodeId);
-                            });
-                        }
-                    });
-                });
-
-                // remove unused edges
-                oldEdges.forEach(edge => {
-                    if (edge.type === 'relatedTo') {
-                        if (relatedToTargets.has(edge.target as string)) {
-                            relatedToTargets.delete(edge.target as string);
-                        } else {
-                            graph.removeEdge(edge);
-                        }
-                    }
-                    if (edge.type === 'duplicate') {
-                        if (duplicateOfTargets.has(edge.target as string)) {
-                            duplicateOfTargets.delete(edge.target as string);
-                        } else {
-                            graph.removeEdge(edge);
-                        }
-                    }
-                    if (edge.type === 'dependency') {
-                        if (dependsOnTargets.has(edge.target as string)) {
-                            dependsOnTargets.delete(edge.target as string);
-                        } else {
-                            graph.removeEdge(edge);
-                        }
-                    }
-                });
-
-                // add new edges
-                relatedToTargets.forEach(targetId => {
-                    graph.addEdge({
-                        source: sourceNodeId,
-                        target: targetId,
-                        type: 'relatedTo',
-                        markerEnd: {
-                            template: 'arrow',
-                            relativeRotation: 0,
-                        },
-                        dragHandles: []
-                    });
-                });
-                duplicateOfTargets.forEach(targetId => {
-                    graph.addEdge({
-                        source: sourceNodeId,
-                        target: targetId,
-                        type: 'duplicate',
-                        markerEnd: {
-                            template: 'arrow',
-                            relativeRotation: 0,
-                        },
-                        dragHandles: []
-                    });
-                });
-                dependsOnTargets.forEach(targetId => {
-                    graph.addEdge({
-                        source: sourceNodeId,
-                        target: targetId,
-                        type: 'dependency',
-                        markerEnd: {
-                            template: 'arrow',
-                            relativeRotation: 0,
-                        },
-                        dragHandles: []
-                    });
-                });
-            });
-        });
-
     }
 }

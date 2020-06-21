@@ -44,12 +44,12 @@
                 <mat-expansion-panel *ngFor="let project of projectList | async;">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            {{project.displayName}}
+                            {{project.name}}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-nav-list>
-                        <a mat-list-item [routerLink]="[project.projectName]">{{'Overview'}}</a>
-                        <a mat-list-item [routerLink]="[project.projectName, 'issues']">{{'Issues'}}</a>
+                        <a mat-list-item [routerLink]="[project.id]">{{'Overview'}}</a>
+                        <a mat-list-item [routerLink]="[project.id, 'issues']">{{'Issues'}}</a>
                     </mat-nav-list>
                 </mat-expansion-panel>
                 <div *ngIf="(projectList | async)?.length === 0">

@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Project } from '../types/types-interfaces';
 import { Store, select } from '@ngrx/store';
-import { State } from '../reducers/state';
+import { State, Project } from '../reducers/state';
 import { selectProject } from '../reducers/projects.selector';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';

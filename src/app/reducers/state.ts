@@ -2,27 +2,26 @@
 
 export interface Project {
 
-    projectId: string;
+    id: string;
 
     // general information
-    projectName: string;
-    displayName: string;
+    name: string;
+    description: string;
     projectOwnerName: string;
 
     // imsInformation
-    imsURL: string;
-    imsProviderType: string;
-    imsOwnerName: string;
+    //imsURL: string;
+    //imsProviderType: string;
+    //imsOwnerName: string;
 
     // rsInformation
-    rsURL: string;
-    rsProviderType: string;
-    rsOwnerName: string;
+    //rsURL: string;
+    //rsProviderType: string;
+    //rsOwnerName: string;
 
     components: string[];
 
     // state related information
-    issueNamespace: string;
 }
 
 export interface ProjectsState {
@@ -35,6 +34,7 @@ export interface ComponentInterface {
     interfaceId: string;
 
     interfaceName: string;
+    issues: string[];
 }
 
 export interface ComponentInterfaces {
@@ -48,9 +48,13 @@ export interface ComponentRelation {
 
 export interface Component {
 
-    componentId: string;
+    id: string;
 
-    componentName: string;
+    name: string;
+    description: string;
+
+    issueManagementSystem: string;
+    issues: string[];
 
     interfaces: ComponentInterfaces;
 
@@ -87,8 +91,9 @@ export interface IssueLocation {
 }
 
 export interface IssueComment {
-    comment: string;
-    annotator: string;
+    author: string;
+    text: string;
+    html: string;
 }
 
 export enum IssueType {
@@ -99,24 +104,20 @@ export enum IssueType {
 
 export interface Issue {
 
-    issueId: string;
+    id: string;
 
     title: string;
-    type: IssueType;
     textBody: string;
+    htmlBody: string;
+    type: IssueType;
     isOpen: boolean;
     relatedIssues: IssueRelation[];
     labels: IssueLabel[];
-    locations: IssueLocation[];
     comments: IssueComment[];
 }
 
 export interface IssuesState {
     [issueId: string]: Issue;
-}
-
-export interface IssueNamespacesState {
-    [namespace: string]: IssuesState;
 }
 
 export interface IssueGraph {
@@ -131,6 +132,6 @@ export interface IssueGraphsState {
 export interface State {
     projects: ProjectsState;
     components: ComponentsState;
-    issueNamespaces: IssueNamespacesState;
+    issues: IssuesState;
     issueGraphs: IssueGraphsState;
 }

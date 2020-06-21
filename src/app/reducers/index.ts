@@ -19,7 +19,7 @@ import { reducer as issueGraphsReducer } from './issue-graphs.reducer';
 export const reducers: ActionReducerMap<State> = {
     projects: projectsReducer,
     components: componentsReducer,
-    issueNamespaces: issueNamespacesReducer,
+    issues: issueNamespacesReducer,
     issueGraphs: issueGraphsReducer,
 };
 

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { Project, ProjectInformation } from '../types/types-interfaces';
+import { ProjectInformation } from '../types/types-interfaces';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/create-project-dialog.component';
 import { Store, select } from '@ngrx/store';
-import { State } from '../reducers/state';
+import { State, Project } from '../reducers/state';
 import { selectProjectList } from '../reducers/projects.selector';
 import { Observable } from 'rxjs';
 

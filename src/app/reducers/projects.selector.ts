@@ -24,7 +24,7 @@ export const selectProject = createSelector(
         // tslint:disable-next-line: forin
         for (const projId in projects) {
             const proj = projects[projId];
-            if (proj.projectName === props) {
+            if (proj.name === props) {
                 return proj;
             }
         }

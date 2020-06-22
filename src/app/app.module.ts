@@ -24,6 +24,8 @@ import { ProjectInformationComponent } from './dashboard/overview/project-inform
 import { GraphsModule } from './graphs/graphs.module';
 import { StoreModule } from '@ngrx/store';
 import { reducers, metaReducers } from './reducers';
+import { GraphQLModule } from './graphql.module';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -52,7 +54,9 @@ import { reducers, metaReducers } from './reducers';
         FormsModule, ReactiveFormsModule,
         StoreModule.forRoot(reducers, {
             metaReducers
-        })
+        }),
+        GraphQLModule,
+        HttpClientModule
     ],
     entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent],
     providers: [

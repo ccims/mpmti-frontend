@@ -6,6 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { State, Project } from '../reducers/state';
 import { selectProjectList } from '../reducers/projects.selector';
 import { Observable } from 'rxjs';
+import { ApiService } from '../api/api.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -18,11 +19,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     //private projects: ProjectInformation[];
     public projectList: Observable<Project[]>;
 
-    constructor(public dialog: MatDialog, private store: Store<State>) {
+    constructor(public dialog: MatDialog, private store: Store<State>, private api: ApiService) {
     }
 
     ngOnInit() {
         this.username = localStorage.getItem('username');
+
+        this.api.getProjects();
 
         this.projectList = this.store.pipe(select(selectProjectList));
 

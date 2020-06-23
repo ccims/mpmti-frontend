@@ -15,6 +15,8 @@ import { selectIssueGraphData } from 'src/app/reducers/issueGraph.selector';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from 'src/app/api/api.service';
 import { CreateInterfaceDialogComponent } from 'src/app/dialogs/create-interface-dialog-demo/create-interface-dialog.component';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { GraphNodeInfoSheetComponent } from 'src/app/dialogs/graph-node-info-sheet-demo/graph-node-info-sheet.component';
 
 @Component({
     selector: 'app-issue-graph',
@@ -46,7 +48,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
     private issueToRelatedNode: Map<string, Set<string>> = new Map();
     private issueToGraphNode: Map<string, Set<string>> = new Map();
 
-    constructor(private store: Store<State>, private dialog: MatDialog, private api: ApiService) {}
+    constructor(private store: Store<State>, private dialog: MatDialog, private bottomSheet: MatBottomSheet, private api: ApiService) {}
 
     ngOnInit() {
         this.initGraph();
@@ -653,16 +655,27 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
         if (node.type === 'component') {
             // TODO show a edit component dialog (or similar)
-            console.log('Clicked on component:', node);
+            this.bottomSheet.open(GraphNodeInfoSheetComponent, {
+                data: {
+                    component: node.data,
+                    issues: [...node.relatedIssues],
+                }
+            });
             return;
         }
         if (node.type === 'interface') {
             // TODO show a edit interface dialog (or similar)
-            console.log('Clicked on interface:', node);
+            this.bottomSheet.open(GraphNodeInfoSheetComponent, {
+                data: {
+                    interface: node.data,
+                    issues: [...node.relatedIssues],
+                }
+            });
             return;
         }
         if (node.type.startsWith('issue-')) {
             console.log('Clicked on an issue folder node:', node);
+            // TODO find parent and but only use issues from clicked node
             return;
         }
         console.log('Clicked on another type of node:', node);

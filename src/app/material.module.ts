@@ -20,6 +20,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 
 @NgModule({
@@ -28,7 +29,7 @@ import { FormsModule } from '@angular/forms';
         MatCardModule, MatFormFieldModule, MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
         MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule,
-        MatDividerModule
+        MatDividerModule, MatBottomSheetModule
     ],
 
     exports: [MatNativeDateModule, FormsModule,
@@ -37,7 +38,7 @@ import { FormsModule } from '@angular/forms';
         MatInputModule, MatListModule, MatRadioModule,
         MatSidenavModule, MatExpansionModule, MatTooltipModule, MatTabsModule,
         MatSlideToggleModule, MatSelectModule, MatDialogModule, MatStepperModule,
-        MatDividerModule
+        MatDividerModule, MatBottomSheetModule
     ],
 
 })

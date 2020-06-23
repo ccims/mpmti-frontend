@@ -21,6 +21,7 @@ import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { CreateComponentDialogComponent } from './dialogs/create-component-dialog-demo/create-component-dialog.component';
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog-demo/create-project-dialog.component';
 import { CreateInterfaceDialogComponent } from './dialogs/create-interface-dialog-demo/create-interface-dialog.component';
+import { GraphNodeInfoSheetComponent } from './dialogs/graph-node-info-sheet-demo/graph-node-info-sheet.component';
 import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
 import { GraphsModule } from './graphs/graphs.module';
 import { StoreModule } from '@ngrx/store';
@@ -44,6 +45,7 @@ import { HttpClientModule } from '@angular/common/http';
         IssueListComponent,
         CreateComponentDialogComponent,
         CreateProjectDialogComponent,
+        GraphNodeInfoSheetComponent,
         ProjectInformationComponent,
         CreateInterfaceDialogComponent,
     ],
@@ -60,7 +62,7 @@ import { HttpClientModule } from '@angular/common/http';
         GraphQLModule,
         HttpClientModule
     ],
-    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent, CreateInterfaceDialogComponent],
+    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent, CreateInterfaceDialogComponent, GraphNodeInfoSheetComponent],
     providers: [
         ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     ],

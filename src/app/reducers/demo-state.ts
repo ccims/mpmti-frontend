@@ -73,21 +73,21 @@ const issueG: Issue = {
 
 issueA.relatedIssues = [
     {
-        relatedIssueID: issueC.id,
+        relatedIssueId: issueC.id,
         relationType: IssueRelationType.DEPENDS,
     }
 ];
 
 issueC.relatedIssues = [
     {
-        relatedIssueID: issueD.id,
+        relatedIssueId: issueD.id,
         relationType: IssueRelationType.DEPENDS,
     }
 ];
 
 issueF.relatedIssues = [
     {
-        relatedIssueID: issueG.id,
+        relatedIssueId: issueG.id,
         relationType: IssueRelationType.DEPENDS,
     }
 ];
@@ -101,8 +101,10 @@ const compOrderService: Component = {
     id: Uuid('order-service', COMPONENT_UUID_NAMESPACE),
     name: 'order-service',
     description: '',
-    issueManagementSystem: null,
     issues: [issueA.id, issueB.id, issueF.id],
+    imsId: null,
+    imsRepository: null,
+    imsOwner: null,
     interfaces: {},
     componentRelations: [
         {
@@ -120,8 +122,10 @@ const compShippingService: Component = {
     id: Uuid('shipping-service', COMPONENT_UUID_NAMESPACE),
     name: 'shipping-service',
     description: '',
-    issueManagementSystem: null,
     issues: [issueC.id, issueD.id, issueE.id, issueF.id],
+    imsId: null,
+    imsRepository: null,
+    imsOwner: null,
     interfaces: {
         [compInterfaceUUIDShipping]: {
             interfaceId: compInterfaceUUIDShipping,
@@ -141,8 +145,10 @@ const compPaymentService: Component = {
     id: Uuid('payment-service', COMPONENT_UUID_NAMESPACE),
     name: 'payment-service',
     description: '',
-    issueManagementSystem: null,
     issues: [issueG.id],
+    imsId: null,
+    imsRepository: null,
+    imsOwner: null,
     interfaces: {
         [compInterfaceUUIDPayment]: {
             interfaceId: compInterfaceUUIDPayment,

@@ -67,7 +67,7 @@ function updateIssueReducer(oldIssues: IssuesState, props: {issueId: string, iss
 function addIssueRelationToIssueReducer(oldIssues: IssuesState, props: {issueId: string, issueRelation: IssueRelation}): IssuesState {
     const oldIssue = oldIssues[props.issueId];
     if (oldIssue.relatedIssues.some(rel => {
-        return rel.relatedIssueID === props.issueRelation.relatedIssueID && rel.relationType === props.issueRelation.relationType;
+        return rel.relatedIssueId === props.issueRelation.relatedIssueId && rel.relationType === props.issueRelation.relationType;
     })) {
         return oldIssues;
     }
@@ -88,7 +88,7 @@ function addIssueRelationToIssueReducer(oldIssues: IssuesState, props: {issueId:
 function removeIssueRelationFromIssueReducer(oldIssues: IssuesState, props: {issueId: string, issueRelation: IssueRelation}): IssuesState {
     const oldIssue = oldIssues[props.issueId];
     if (!oldIssue.relatedIssues.some(rel => {
-        return rel.relatedIssueID === props.issueRelation.relatedIssueID && rel.relationType === props.issueRelation.relationType;
+        return rel.relatedIssueId === props.issueRelation.relatedIssueId && rel.relationType === props.issueRelation.relationType;
     })) {
         return oldIssues;
     }
@@ -96,7 +96,7 @@ function removeIssueRelationFromIssueReducer(oldIssues: IssuesState, props: {iss
     const newIssue = {
         ...oldIssue,
         relatedIssues: oldIssue.relatedIssues.filter(rel => {
-            return rel.relatedIssueID !== props.issueRelation.relatedIssueID || rel.relationType !== props.issueRelation.relationType;
+            return rel.relatedIssueId !== props.issueRelation.relatedIssueId || rel.relationType !== props.issueRelation.relationType;
         }),
     };
     return {

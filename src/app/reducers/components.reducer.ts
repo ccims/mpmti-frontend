@@ -23,8 +23,10 @@ function newComponentBase(): Component {
         name: null,
         description: '',
 
-        issueManagementSystem: null,
         issues: [],
+        imsId: null,
+        imsRepository: null,
+        imsOwner: null,
 
         interfaces: {},
 

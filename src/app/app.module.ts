@@ -18,7 +18,7 @@ import { SystemArchitectureGraphComponent } from './system-architecture-graph/sy
 import { IssueListComponent } from './issue-list/issue-list.component';
 import { ApiService } from './api/api.service';
 import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
-import { CreateComponentDialogComponent } from './dialogs/create-component-dialog/create-component-dialog.component';
+import { CreateComponentDialogComponent } from './dialogs/create-component-dialog-demo/create-component-dialog.component';
 import { CreateProjectDialogComponent } from './dialogs/create-project-dialog-demo/create-project-dialog.component';
 import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
 import { GraphsModule } from './graphs/graphs.module';

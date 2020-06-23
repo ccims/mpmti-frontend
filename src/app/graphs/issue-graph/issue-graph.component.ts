@@ -226,8 +226,10 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
 
             this.graphDataSubscription?.unsubscribe();
             this.graphDataSubscription = this.store
-                .pipe(select(selectIssueGraphData, {projectId: this.project?.id}))
-                .subscribe(issueGraphData => {
+                .pipe(
+                    select(selectIssueGraphData, {projectId: this.project?.id}),
+                    debounceTime(30), // to give time for rendering the graph
+                ).subscribe(issueGraphData => {
                     this.updateGraph(issueGraphData.components, issueGraphData.issues);
                 });
         }
@@ -489,7 +491,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 }
 
                 issue.relatedIssues.forEach(rel => {
-                    this.issueToGraphNode.get(rel.relatedIssueID).forEach(targetNodeId => {
+                    this.issueToGraphNode.get(rel.relatedIssueId).forEach(targetNodeId => {
 
                         let edgeType = 'relatedTo';
                         if (rel.relationType === IssueRelationType.DEPENDS) {

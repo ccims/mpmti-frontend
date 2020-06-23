@@ -53,8 +53,11 @@ export interface Component {
     name: string;
     description: string;
 
-    issueManagementSystem: string;
     issues: string[];
+
+    imsId: string;
+    imsRepository: string;
+    imsOwner: string;
 
     interfaces: ComponentInterfaces;
 
@@ -73,7 +76,7 @@ export enum IssueRelationType {
 
 export interface IssueRelation {
     relationType: IssueRelationType;
-    relatedIssueID: string;
+    relatedIssueId: string;
 }
 
 export interface IssueLabel {

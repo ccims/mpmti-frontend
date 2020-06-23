@@ -1,0 +1,77 @@
+<h2 mat-dialog-title>Create Component</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-vertical-stepper linear #stepper>
+        <mat-step [stepControl]="this.getGeneralInformation()" errorMessage="General information is not valid.">
+            <form [formGroup]="this.getGeneralInformation()">
+                <ng-template matStepLabel>Fill out general information</ng-template>
+                <div>
+                    <mat-form-field appearance="standard" class="max-length">
+                        <mat-label>Name</mat-label>
+                        <input matInput type="text" title="Component's name" formControlName="componentName"
+                            cdkFocusInitial required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard" class="max-length">
+                        <mat-label>Description</mat-label>
+                        <input matInput type="text" title="Component's description" formControlName="componentDescription">
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard" class="max-length">
+                        <mat-label>Owner Username</mat-label>
+                        <input matInput type="text" title="The Owner's Username" formControlName="ownerUsername" required>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperNext [disabled]="!this.getGeneralInformation()?.valid">Next</button>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step [stepControl]="this.getIMSInformation()"
+            errorMessage="Issue Management System information is not valid.">
+            <form [formGroup]="this.getIMSInformation()">
+                <ng-template matStepLabel>Fill out component's issue management system</ng-template>
+                <div>
+                    <mat-form-field>
+                        <mat-label>Provider Type</mat-label>
+                        <mat-select formControlName="imsProviderType" required>
+                            <mat-option value="1">GitHub</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-button matStepperNext [disabled]="!this.getIMSInformation()?.valid">Next</button>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step [stepControl]="this.getRSInformation()" errorMessage="Repository System information is not valid.">
+            <form [formGroup]="this.getRSInformation()">
+                <ng-template matStepLabel>Fill out component's repository system</ng-template>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>Repository Name</mat-label>
+                        <input matInput type="text" ormControlName="repository" cdkFocusInitial><!--required-->
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field appearance="standard">
+                        <mat-label>Owner</mat-label>
+                        <input matInput type="text" formControlName="repositoryOwner" ><!--required-->
+                    </mat-form-field>
+                </div>
+                <div>
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-button (click)="stepper.reset()">Reset</button>
+                </div>
+            </form>
+        </mat-step>
+    </mat-vertical-stepper>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button [mat-dialog-close]="this.getComponentInformation()"
+        [disabled]="!this.getGeneralInformation()?.valid || !this.getIMSInformation()?.valid || !this.getRSInformation()?.valid">Create</button>
+</mat-dialog-actions>

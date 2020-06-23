@@ -8,8 +8,11 @@ export interface ComponentPartial {
     name?: string;
     description?: string;
 
-    issueManagementSystem?: string;
     issues?: string[];
+
+    imsId?: string;
+    imsRepository?: string;
+    imsOwner?: string;
 
     interfaces?: ComponentInterfaces;
 

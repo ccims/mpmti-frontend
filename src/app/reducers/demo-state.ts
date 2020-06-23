@@ -128,7 +128,7 @@ const compShippingService: Component = {
     imsOwner: null,
     interfaces: {
         [compInterfaceUUIDShipping]: {
-            interfaceId: compInterfaceUUIDShipping,
+            id: compInterfaceUUIDShipping,
             interfaceName: 'shipping-service-interface',
             issues: [issueC.id],
         }
@@ -151,7 +151,7 @@ const compPaymentService: Component = {
     imsOwner: null,
     interfaces: {
         [compInterfaceUUIDPayment]: {
-            interfaceId: compInterfaceUUIDPayment,
+            id: compInterfaceUUIDPayment,
             interfaceName: 'payment-service-interface',
             issues: [issueG.id],
         }

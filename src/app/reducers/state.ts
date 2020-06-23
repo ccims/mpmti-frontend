@@ -31,14 +31,14 @@ export interface ProjectsState {
 
 export interface ComponentInterface {
 
-    interfaceId: string;
+    id: string;
 
     interfaceName: string;
     issues: string[];
 }
 
 export interface ComponentInterfaces {
-    [interfaceId: string]: ComponentInterface;
+    [id: string]: ComponentInterface;
 }
 
 export interface ComponentRelation {

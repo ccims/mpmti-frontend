@@ -419,7 +419,7 @@ export class ApiService {
 
     private gqInterfaceToComponentInterface(componentInterface: GqInterface): ComponentInterface {
         const inter = {
-            interfaceId: componentInterface.id,
+            id: componentInterface.id,
             interfaceName: componentInterface.name,
             issues: [],
         };
@@ -588,7 +588,7 @@ export class ApiService {
             if (result.errors == null || result.errors.length === 0) {
                 console.log(result);
                 const inter = {
-                    interfaceId: result.data.createInterface.id,
+                    id: result.data.createInterface.id,
                     interfaceName: result.data.createInterface.name,
                     issues: [],
                 };
@@ -617,7 +617,7 @@ export class ApiService {
         });
     }
 
-    public addComponentToInterfaceRelation(componentId: string, interfaceId) {
+    public addComponentToInterfaceRelation(componentId: string, interfaceId: string) {
         this.apollo.mutate({
             mutation: addUsedInterfaceToComponentMutation,
             variables: {

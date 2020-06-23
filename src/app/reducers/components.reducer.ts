@@ -93,7 +93,7 @@ function addInterfaceToComponentReducer(oldComponents: ComponentsState, props: {
 
     const oldComponent = oldComponents[props.componentId];
     const oldInterfaces = oldComponent.interfaces;
-    if (oldInterfaces[props.interface.interfaceId] != null) {
+    if (oldInterfaces[props.interface.id] != null) {
         return oldComponents;
     }
 
@@ -103,7 +103,7 @@ function addInterfaceToComponentReducer(oldComponents: ComponentsState, props: {
             ...oldComponent,
             interfaces: {
                 ...oldInterfaces,
-                [props.interface.interfaceId]: props.interface,
+                [props.interface.id]: props.interface,
             },
         },
     };
@@ -138,7 +138,7 @@ function updateInterfaceOfComponentReducer(oldComponents: ComponentsState, props
     if (oldComponent == null) {
         return oldComponents;
     }
-    if (oldComponent.interfaces[props.interface.interfaceId] == null) {
+    if (oldComponent.interfaces[props.interface.id] == null) {
         return addInterfaceToComponentReducer(oldComponents, props); // TODO keep this?
     }
 
@@ -148,7 +148,7 @@ function updateInterfaceOfComponentReducer(oldComponents: ComponentsState, props
             ...oldComponent,
             interfaces: {
                 ...oldComponent.interfaces,
-                [props.interface.interfaceId]: props.interface,
+                [props.interface.id]: props.interface,
             },
         },
     };

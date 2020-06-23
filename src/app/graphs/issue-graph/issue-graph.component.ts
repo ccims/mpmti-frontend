@@ -12,6 +12,9 @@ import { IssueGroupContainerParentBehaviour, IssueGroupContainerBehaviour } from
 import { Store, select } from '@ngrx/store';
 import { State, Project, Component as ProjectComponent, Issue, IssueType, IssueRelationType, IssuesState } from 'src/app/reducers/state';
 import { selectIssueGraphData } from 'src/app/reducers/issueGraph.selector';
+import { MatDialog } from '@angular/material/dialog';
+import { ApiService } from 'src/app/api/api.service';
+import { CreateInterfaceDialogComponent } from 'src/app/dialogs/create-interface-dialog-demo/create-interface-dialog.component';
 
 @Component({
     selector: 'app-issue-graph',
@@ -43,7 +46,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
     private issueToRelatedNode: Map<string, Set<string>> = new Map();
     private issueToGraphNode: Map<string, Set<string>> = new Map();
 
-    constructor(private store: Store<State>) {}
+    constructor(private store: Store<State>, private dialog: MatDialog, private api: ApiService) {}
 
     ngOnInit() {
         this.initGraph();
@@ -236,7 +239,6 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     updateGraph(components: ProjectComponent[], issues: IssuesState) {
-
         const graph: GraphEditor = this.graph.nativeElement;
         let needRender = false;
 
@@ -252,11 +254,12 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         const issueGroupParents: Node[] = [];
 
         components.forEach(comp => {
-            let componentNode = graph.getNode(comp.id);
+            const componentNodeId = `component_${comp.id}`;
+            let componentNode = graph.getNode(componentNodeId);
             if (componentNode == null) {
-                const position: Point = this.nodePositions?.[comp.id] ?? {x: 0, y: 0};
+                const position: Point = this.nodePositions?.[componentNodeId] ?? {x: 0, y: 0};
                 componentNode = {
-                    id: comp.id,
+                    id: componentNodeId,
                     ...position,
                     title: comp.name,
                     type: 'component',
@@ -272,8 +275,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     componentNode.data = comp;
                     needRender = true;
                 }
-                graph.getEdgesBySource(comp.id).forEach(edge => edgesToRemove.add(edgeId(edge)));
-                graph.getEdgesByTarget(comp.id).forEach(edge => edgesToRemove.add(edgeId(edge)));
+                graph.getEdgesBySource(componentNodeId).forEach(edge => edgesToRemove.add(edgeId(edge)));
+                graph.getEdgesByTarget(componentNodeId).forEach(edge => edgesToRemove.add(edgeId(edge)));
             }
             this.updateIssuesForNode(graph, componentNode, comp.issues, issues);
             issueGroupParents.push(componentNode);
@@ -282,19 +285,20 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 interfacesToRemove.delete(interfaceId);
 
                 const inter = comp.interfaces[interfaceId];
-                let interfaceNode = graph.getNode(interfaceId);
+                const interfaceNodeId = `interface_${interfaceId}`;
+                let interfaceNode = graph.getNode(interfaceNodeId);
 
                 // mark interface edge as used
                 const interfaceEdgeId = edgeId({
-                    source: comp.id,
-                    target: inter.interfaceId,
+                    source: componentNodeId,
+                    target: interfaceNodeId,
                 });
                 edgesToRemove.delete(interfaceEdgeId);
 
                 if (interfaceNode == null) {
-                    const position: Point = this.nodePositions?.[inter.interfaceId] ?? {x: 150, y: 0};
+                    const position: Point = this.nodePositions?.[interfaceNodeId] ?? {x: 150, y: 0};
                     interfaceNode = {
-                        id: inter.interfaceId,
+                        id: interfaceNodeId,
                         ...position,
                         title: inter.interfaceName,
                         type: 'interface',
@@ -304,8 +308,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     graph.addNode(interfaceNode);
                     this.addIssueGroupContainer(graph, interfaceNode);
                     const edge = {
-                        source: comp.id,
-                        target: inter.interfaceId,
+                        source: componentNodeId,
+                        target: interfaceNodeId,
                         type: 'interface',
                         dragHandles: []
                     };
@@ -324,8 +328,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             comp.componentRelations.forEach(relation => {
                 if (relation.targetType === 'component') {
                     const edge = {
-                        source: comp.id,
-                        target: relation.targetId,
+                        source: componentNodeId,
+                        target: `component_${relation.targetId}`,
                         type: 'component-connect',
                         markerEnd: {
                             template: 'arrow',
@@ -341,8 +345,8 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 }
                 if (relation.targetType === 'interface') {
                     const edge = {
-                        source: comp.id,
-                        target: relation.targetId,
+                        source: componentNodeId,
+                        target: `interface_${relation.targetId}`,
                         type: 'interface-connect',
                         markerEnd: {
                             template: 'interface-connector',
@@ -357,6 +361,13 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     edgesToRemove.delete(eId);
                 }
             });
+        });
+
+        edgesToRemove.forEach(eId => {
+            const edge = graph.getEdge(eId);
+            if (edge != null) { // FIXME after grapheditor update (just use the edge id in removeEdge)
+                graph.removeEdge(edge);
+            }
         });
 
         issueGroupParents.forEach(node => this.updateIssueRelations(graph, node, issues));
@@ -527,7 +538,12 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 });
             });
 
-            edgesToDelete.forEach(edgeId => graph.removeEdge(edgeId));
+            edgesToDelete.forEach(edgeId => {
+                const edge = graph.getEdge(edgeId);
+                if (edge) { // FIXME after grapheditor update (just use the edgeId in removeEdge)
+                    graph.removeEdge(edge);
+                }
+            });
         });
     }
 
@@ -591,9 +607,13 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         const edge: Edge = event.detail.edge;
         if (edge.type === 'interface-connect') {
             event.preventDefault(); // cancel edge creation
-            // TODO create actual edge in the components data structure
             // and then update the graph via the api
-            console.log('TODO: Create new interface connection', edge);
+            const graph: GraphEditor = this.graph.nativeElement;
+            const sourceNode = graph.getNode(edge.source);
+            const targetNode = graph.getNode(edge.target);
+            if (sourceNode != null && targetNode != null) {
+                this.api.addComponentToInterfaceRelation(sourceNode.data.id, targetNode.data.id);
+            }
         }
     }
 
@@ -606,8 +626,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             return;
         }
         if (edge.type === 'interface') {
-            // TODO add interface to the component data structure
-            console.log('TODO: Create new interface for the component', event.detail.sourceNode, 'At position', edge.currentTarget);
+            this.addInterfaceToComponent(event.detail.sourceNode.data.id);
         }
     }
 
@@ -618,9 +637,13 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         const edge: Edge = event.detail.edge;
         if (edge.type === 'interface-connect') {
             event.preventDefault(); // cancel edge deletion
-            // TODO remove actual edge in the components data structure
             // and then update the graph via the api
-            console.log('TODO: Remove existing interface connection', edge);
+            const graph: GraphEditor = this.graph.nativeElement;
+            const sourceNode = graph.getNode(edge.source);
+            const targetNode = graph.getNode(edge.target);
+            if (sourceNode != null && targetNode != null) {
+                this.api.removeComponentToInterfaceRelation(sourceNode.data.id, targetNode.data.id);
+            }
         }
     }
 
@@ -672,5 +695,15 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         this.issuesById = {};
         this.issueToRelatedNode = new Map();
         this.issueToGraphNode = new Map();
+    }
+
+    private addInterfaceToComponent(componentId) {
+        const createComponentDialog = this.dialog.open(CreateInterfaceDialogComponent);
+
+        createComponentDialog.afterClosed().subscribe((interfaceName: string) => {
+            if (interfaceName != null && interfaceName !== '') {
+                this.api.addComponentInterface(componentId, interfaceName);
+            }
+        });
     }
 }

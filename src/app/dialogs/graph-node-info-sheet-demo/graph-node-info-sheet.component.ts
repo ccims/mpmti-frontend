@@ -4,6 +4,8 @@ import { Store, select } from '@ngrx/store';
 import { State, IssuesState } from 'src/app/reducers/state';
 import { selectIssuesState } from 'src/app/reducers/issues.selector';
 import { take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateIssueDialogComponent } from '../create-issue-dialog-demo/create-issue-dialog.component';
 
 
 @Component({
@@ -15,7 +17,12 @@ export class GraphNodeInfoSheetComponent implements OnInit {
 
     issues: IssuesState;
 
-    constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: any, private bottomSheetRef: MatBottomSheetRef<GraphNodeInfoSheetComponent>, private store: Store<State>) { }
+    constructor(
+        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
+        private bottomSheetRef: MatBottomSheetRef<GraphNodeInfoSheetComponent>,
+        private store: Store<State>,
+        private dialog: MatDialog,
+    ) { }
 
     ngOnInit() {
         this.store.pipe(select(selectIssuesState), take(1)).subscribe(issues => {
@@ -34,6 +41,7 @@ export class GraphNodeInfoSheetComponent implements OnInit {
     }
 
     newIssue() {
+        this.dialog.open(CreateIssueDialogComponent, {data: this.data.component});
         this.bottomSheetRef.dismiss();
         // TODO implement
     }

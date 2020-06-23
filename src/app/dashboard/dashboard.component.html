@@ -50,6 +50,7 @@
                     <mat-nav-list>
                         <a mat-list-item [routerLink]="[project.id]">{{'Overview'}}</a>
                         <a mat-list-item [routerLink]="[project.id, 'issues']">{{'Issues'}}</a>
+                        <button (click)="removeProject(project.id)">Remove</button>
                     </mat-nav-list>
                 </mat-expansion-panel>
                 <div *ngIf="(projectList | async)?.length === 0">

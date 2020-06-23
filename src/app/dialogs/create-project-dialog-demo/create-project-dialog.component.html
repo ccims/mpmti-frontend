@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Create Project</h2>
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="this.getGeneralInformation()">
+        <ng-template matStepLabel>Fill out project information</ng-template>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Project Name</mat-label>
+                <input matInput type="text" title="Project's name" formControlName="projectName" cdkFocusInitial
+                    required>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard">
+                <mat-label>Description</mat-label>
+                <input matInput type="text" formControlName="description">
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Project Owner</mat-label>
+                <input matInput type="text" title="Project's name" formControlName="ownerUsername" cdkFocusInitial
+                    required>
+            </mat-form-field>
+        </div>
+    </form>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button [mat-dialog-close]="this.getProjectInformation()"
+        [disabled]="!this.getGeneralInformation()?.valid">Create</button>
+</mat-dialog-actions>

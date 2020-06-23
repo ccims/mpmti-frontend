@@ -452,6 +452,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             gm.addNodeToGroup(issueGroupContainer.id, issueFolderId);
         }
         issueFolderNode.issues.add(issue.id);
+        parentNode.relatedIssues.add(issue.id);
         issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
 
 
@@ -469,12 +470,14 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             issueType = 'issue-feature';
         }
 
+        parentNode.relatedIssues.delete(issue.id);
+
         this.issueToGraphNode.get(issue.id).delete(issueFolderId);
 
         const gm = graph.groupingManager;
         const issueFolderNode = graph.getNode(issueFolderId);
         if (issueFolderNode != null) {
-            issueFolderNode.issues.remove(issue.id);
+            issueFolderNode.issues.delete(issue.id);
             issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
             gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
             graph.removeNode(issueFolderNode);
@@ -674,8 +677,31 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             return;
         }
         if (node.type.startsWith('issue-')) {
-            console.log('Clicked on an issue folder node:', node);
-            // TODO find parent and but only use issues from clicked node
+            const graph: GraphEditor = this.graph.nativeElement;
+            const rootId = graph.groupingManager.getTreeRootOf(node.id);
+            const rootNode = graph.getNode(rootId);
+
+            if (rootNode.type === 'component') {
+                // TODO show a edit component dialog (or similar)
+                this.bottomSheet.open(GraphNodeInfoSheetComponent, {
+                    data: {
+                        component: rootNode.data,
+                        issues: [...node.issues],
+                    }
+                });
+                return;
+            }
+
+            if (rootNode.type === 'interface') {
+                // TODO show a edit component dialog (or similar)
+                this.bottomSheet.open(GraphNodeInfoSheetComponent, {
+                    data: {
+                        interface: rootNode.data,
+                        issues: [...node.issues],
+                    }
+                });
+                return;
+            }
             return;
         }
         console.log('Clicked on another type of node:', node);

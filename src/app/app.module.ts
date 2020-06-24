@@ -29,6 +29,7 @@ import { reducers, metaReducers } from './reducers';
 import { GraphQLModule } from './graphql.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CreateIssueDialogComponent } from './dialogs/create-issue-dialog-demo/create-issue-dialog.component';
+import { EditIssueDialogComponent } from './dialogs/edit-issue-dialog-demo/edit-issue-dialog.component';
 
 
 @NgModule({
@@ -48,6 +49,7 @@ import { CreateIssueDialogComponent } from './dialogs/create-issue-dialog-demo/c
         CreateProjectDialogComponent,
         CreateInterfaceDialogComponent,
         CreateIssueDialogComponent,
+        EditIssueDialogComponent,
         GraphNodeInfoSheetComponent,
         ProjectInformationComponent,
     ],
@@ -64,7 +66,7 @@ import { CreateIssueDialogComponent } from './dialogs/create-issue-dialog-demo/c
         GraphQLModule,
         HttpClientModule
     ],
-    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent, CreateInterfaceDialogComponent, CreateIssueDialogComponent, GraphNodeInfoSheetComponent],
+    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent, CreateInterfaceDialogComponent, CreateIssueDialogComponent, EditIssueDialogComponent, GraphNodeInfoSheetComponent],
     providers: [
         ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     ],

@@ -10,3 +10,13 @@ export const selectIssuesState = createSelector(
         return issues;
     }
 );
+
+export const selectSingleIssue = createSelector(
+    selectIssues,
+    (issues: IssuesState, props: string) => {
+        if (issues[props] != null) {
+            return issues[props];
+        }
+        return null;
+    }
+);

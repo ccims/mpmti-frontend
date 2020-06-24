@@ -14,6 +14,10 @@
     <mat-card>
         <h3>Interface: {{data.interface.interfaceName}}</h3>
     </mat-card>
+    <mat-action-list>
+        <button mat-list-item > Remove {{data.interface.interfaceName}} </button>
+        <button mat-list-item > Create New Issue </button>
+    </mat-action-list>
 </div>
 <h2 mat-dialog-title>Issues:</h2>
 <mat-action-list>

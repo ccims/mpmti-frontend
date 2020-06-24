@@ -660,6 +660,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             // TODO show a edit component dialog (or similar)
             this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                 data: {
+                    projectId: this.project.id,
                     component: node.data,
                     issues: [...node.relatedIssues],
                 }
@@ -670,6 +671,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             // TODO show a edit interface dialog (or similar)
             this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                 data: {
+                    projectId: this.project.id,
                     interface: node.data,
                     issues: [...node.relatedIssues],
                 }
@@ -685,6 +687,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 // TODO show a edit component dialog (or similar)
                 this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                     data: {
+                        projectId: this.project.id,
                         component: rootNode.data,
                         issues: [...node.issues],
                     }
@@ -696,6 +699,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 // TODO show a edit component dialog (or similar)
                 this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                     data: {
+                        projectId: this.project.id,
                         interface: rootNode.data,
                         issues: [...node.issues],
                     }

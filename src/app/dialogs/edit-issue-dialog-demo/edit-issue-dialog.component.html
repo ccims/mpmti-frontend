@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Edit Issue</h2>
+<mat-dialog-content class="mat-typography">
+    <h2 mat-dialog-title>Edit Issue Data</h2>
+    <form [formGroup]="this.getGeneralInformation()">
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Title</mat-label>
+                <input matInput type="text" title="Title" formControlName="title" cdkFocusInitial required>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>IssueType</mat-label>
+                <mat-select formControlName="issueType" required>
+                    <mat-option [value]="issueType.UNCLASSIFIED">Unclassified</mat-option>
+                    <mat-option [value]="issueType.BUG">Bug</mat-option>
+                    <mat-option [value]="issueType.FEATURE_REQUEST">Feature Request</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Description</mat-label>
+                <textarea matInput title="Description" formControlName="body"></textarea>
+            </mat-form-field>
+        </div>
+    </form>
+    <button (click)="this.updateIssueData()" [disabled]="!this.getGeneralInformation()?.valid">Update Issue Data</button>
+    <h2 mat-dialog-title>Change Issue Relations</h2>
+    <form [formGroup]="this.getIssueRelationInformation()">
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Issue Relation Type</mat-label>
+                <mat-select formControlName="issueRelationType" required>
+                    <mat-option [value]="issueRelationType.RELATED_TO">Related to</mat-option>
+                    <mat-option [value]="issueRelationType.DEPENDS">Depends on</mat-option>
+                    <mat-option [value]="issueRelationType.DUPLICATES">Duplicate of</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Related Issue</mat-label>
+                <mat-select formControlName="relatedIssue" [compareWith]="compareIssues" required>
+                    <mat-optgroup *ngFor="let component of components" [label]="component.name" [disabled]="component.id === data.component?.id">
+                        <mat-option *ngFor="let issueId of component.issues" [value]="{componentId: component.id, issueId: issueId}">
+                            {{issues[issueId].title}}
+                        </mat-option>
+                    </mat-optgroup>
+                </mat-select>
+              </mat-form-field>
+        </div>
+    </form>
+    <button (click)="this.addIssueRelation()" [disabled]="!this.getIssueRelationInformation()?.valid">Add Issue Relation</button>
+    <h2 mat-dialog-title>Existing Issue Relations</h2>
+    <mat-list role="list">
+        <mat-list-item role="listitem" *ngFor="let rel of relatedIssues" >
+            <span *ngIf="rel.relationType === issueRelationType.DEPENDS" >Depends on </span>
+            <span *ngIf="rel.relationType === issueRelationType.DUPLICATES" >Duplicate of </span>
+            <span *ngIf="rel.relationType === issueRelationType.RELATED_TO" >Related to </span>
+            <span style="margin-left: 1em; margin-right: 1em">{{issues[rel.relatedIssueId]?.title}}</span>
+            <button (click)="this.removeIssueRelation(rel)">Remove</button>
+        </mat-list-item>
+      </mat-list>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

@@ -6,6 +6,7 @@ import { selectIssuesState } from 'src/app/reducers/issues.selector';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateIssueDialogComponent } from '../create-issue-dialog-demo/create-issue-dialog.component';
+import { EditIssueDialogComponent } from '../edit-issue-dialog-demo/edit-issue-dialog.component';
 
 
 @Component({
@@ -47,6 +48,13 @@ export class GraphNodeInfoSheetComponent implements OnInit {
     }
 
     editIssue(issueId: string) {
+        this.dialog.open(EditIssueDialogComponent, {
+            data: {
+                projectId: this.data.projectId,
+                component: this.data.component,
+                issue: this.issues[issueId]
+            }
+        });
         this.bottomSheetRef.dismiss();
         // TODO implement
     }

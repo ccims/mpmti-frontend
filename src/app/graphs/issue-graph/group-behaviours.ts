@@ -145,6 +145,6 @@ export class IssueGroupContainerBehaviour implements GroupBehaviour {
 
     afterNodeLeftGroup(group: string, childGroup: string, groupNode: Node, childNode: Node, graphEditor: GraphEditor) {
         this.relativePositionChanged(group, groupNode, graphEditor);
-        groupNode.issueGroupNodes?.remove(childGroup);
+        groupNode.issueGroupNodes?.delete(childGroup);
     }
 }

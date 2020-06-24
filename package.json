@@ -51,7 +51,7 @@
     "@types/node": "^12.11.1",
     "@types/uuid": "^3.4.7",
     "codelyzer": "^5.1.2",
-    "jasmine-core": "~3.4.0",
+    "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.1.0",
     "karma-chrome-launcher": "~2.2.0",
@@ -62,5 +62,8 @@
     "ts-node": "~7.0.0",
     "tslint": "~5.15.0",
     "typescript": "~3.7.5"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.1.3"
   }
 }

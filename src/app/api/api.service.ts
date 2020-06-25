@@ -697,7 +697,6 @@ export class ApiService {
             if (result.errors == null || result.errors.length === 0) {
                 console.log(result);
                 const issue = this.gqIssueToIssuePartial(result.data.createIssue);
-                console.log(issue);
                 this.store.dispatch(addIssue({
                     issueId: result.data.createIssue.id,
                     issue: issue,

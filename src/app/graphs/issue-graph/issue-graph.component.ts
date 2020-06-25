@@ -454,8 +454,50 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             issuesToRemove.delete(issueId);
         });
 
+        issuesToUpdate.forEach(issueId => this.updateIssueOfNode(graph, parentNode, issues[issueId]));
+
         issuesToAdd.forEach(issueId => this.addIssueToNode(graph, parentNode, issues[issueId]));
         issuesToRemove.forEach(issueId => this.removeIssueFromNode(graph, parentNode, issues[issueId]));
+    }
+
+    private updateIssueOfNode(graph: GraphEditor, parentNode: Node, issue: Issue) {
+        let issueFolderId = `${parentNode.id}__undecided`;
+        let issueType = 'issue-undecided';
+        if (issue.type === IssueType.BUG) {
+            issueFolderId = `${parentNode.id}__bug`;
+            issueType = 'issue-bug';
+        } else if (issue.type === IssueType.FEATURE_REQUEST) {
+            issueFolderId = `${parentNode.id}__feature`;
+            issueType = 'issue-feature';
+        }
+
+        let foundIssue = false;
+
+        const gm = graph.groupingManager;
+        const issueGroupContainer = graph.getNode(`${parentNode.id}__issue-group-container`);
+        issueGroupContainer.issueGroupNodes.forEach(currentIssueFolderId => {
+            const issueFolderNode = graph.getNode(currentIssueFolderId);
+            if (issueFolderNode?.issues?.has(issue.id)) {
+                if (issueFolderId === currentIssueFolderId) {
+                    foundIssue = true;
+                    return;
+                }
+
+                this.issueToGraphNode.get(issue.id).delete(currentIssueFolderId);
+                issueFolderNode.issues.delete(issue.id);
+                issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
+                if (issueFolderNode.issues.size === 0) {
+                    gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
+                    graph.removeNode(issueFolderNode);
+                }
+            }
+        });
+
+        if (foundIssue) {
+            return;
+        }
+
+        this.addIssueToNode(graph, parentNode, issue);
     }
 
     private addIssueToNode(graph: GraphEditor, parentNode: Node, issue: Issue) {
@@ -512,8 +554,10 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
         if (issueFolderNode != null) {
             issueFolderNode.issues.delete(issue.id);
             issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
-            gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
-            graph.removeNode(issueFolderNode);
+            if (issueFolderNode.issues.size === 0) {
+                gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
+                graph.removeNode(issueFolderNode);
+            }
         }
     }
 

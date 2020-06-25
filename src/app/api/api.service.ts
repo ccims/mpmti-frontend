@@ -33,9 +33,9 @@ interface GqComment {
 }
 
 enum GqIssueType {
-    UNCLASSIFIED,
-    BUG,
-    FEATURE_REQUEST,
+    UNCLASSIFIED = "UNCLASSIFIED",
+    BUG = "BUG",
+    FEATURE_REQUEST = "FEATURE_REQUEST",
 }
 const GqIssueTypeToIssueType = {
     [GqIssueType.UNCLASSIFIED]: IssueType.UNCLASSIFIED,
@@ -44,9 +44,9 @@ const GqIssueTypeToIssueType = {
 };
 
 enum GqRelationType {
-    RELATED_TO,
-    DUPLICATES,
-    DEPENDS,
+    RELATED_TO = "RELATED_TO",
+    DUPLICATES = "DUPLICATES",
+    DEPENDS = "DEPENDS",
 }
 const GqRelationTypeToIssueRelationType = {
     [GqRelationType.RELATED_TO]: IssueRelationType.RELATED_TO,
@@ -305,7 +305,7 @@ const removeIssueMutation = gql`
 `;
 
 const updateIssueMutation = gql`
-    mutation updateIssue($issueId: ID!, $componentId: ID!, $title: String!, $body: String,) {
+    mutation updateIssue($issueId: ID!, $componentId: ID!, $title: String!, $body: String, $issueType: IssueType) {
         updateIssue(
             issueId: $issueId
             componentId: $componentId
@@ -314,6 +314,7 @@ const updateIssueMutation = gql`
                 body: $body
                 opened: true
                 componentId: $componentId
+                issueType: $issueType
             }
         ) {
             id
@@ -331,7 +332,7 @@ const updateIssueMutation = gql`
 
 const addIssueRelationMutation = gql`
     mutation addIssueRelation($sourceIssueId: ID!, $sourceComponentId: ID!, $targetIssueId: ID!, $targetComponentId: ID!, $relationType: RelationType,) {
-        updateIssue(
+        addIssueRelation(
             data: {
                 fromId: $sourceIssueId,
                 fromComponentId: $sourceComponentId,
@@ -359,7 +360,7 @@ const removeIssueRelationMutation = gql`
 
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ApiService {
 
@@ -468,7 +469,7 @@ export class ApiService {
     }
 
     public loadFullProject(projectId: string) {
-        this.apollo.query<{project: GqProject}>({
+        this.apollo.query<{ project: GqProject }>({
             query: fullProjectQuery,
             variables: {
                 projectId: projectId,
@@ -484,14 +485,14 @@ export class ApiService {
             }
 
             const project = this.gqProjectToProjectPartial(proj);
-            storeActions.push(updateProject({projectId: project.id, project: project}));
+            storeActions.push(updateProject({ projectId: project.id, project: project }));
 
             proj.components.forEach(comp => {
                 const component = this.gqComponentToComponentPartial(comp);
-                storeActions.push(updateComponent({componentId: component.id, component: component}));
+                storeActions.push(updateComponent({ componentId: component.id, component: component }));
                 comp.issues?.filter(issue => issue != null).forEach(iss => {
                     const issue = this.gqIssueToIssuePartial(iss);
-                    storeActions.push(updateIssue({issueId: issue.id, issue: issue}));
+                    storeActions.push(updateIssue({ issueId: issue.id, issue: issue }));
                 });
             });
 
@@ -500,7 +501,7 @@ export class ApiService {
     }
 
     public addProject(project: ProjectPartial) {
-        this.apollo.mutate<{createProject: GqProject}>({
+        this.apollo.mutate<{ createProject: GqProject }>({
             mutation: addProjectMutation,
             variables: project,
         }).subscribe(result => {
@@ -530,7 +531,7 @@ export class ApiService {
 
 
     public addComponent(projectId: string, ownerUsername: string, component: ComponentPartial) {
-        this.apollo.mutate<{createComponent: GqComponent}>({
+        this.apollo.mutate<{ createComponent: GqComponent }>({
             mutation: addComponentMutation,
             variables: {
                 name: component.name,
@@ -556,7 +557,7 @@ export class ApiService {
                     }
                 }).subscribe(innerResult => {
                     console.log(innerResult);
-                    this.store.dispatch(addComponentToProject({projectId: projectId, componentId: component.id}));
+                    this.store.dispatch(addComponentToProject({ projectId: projectId, componentId: component.id }));
                 });
             }
         });
@@ -578,7 +579,7 @@ export class ApiService {
     }
 
     public addComponentInterface(componentId: string, name: string) {
-        this.apollo.mutate<{createInterface: GqInterface}>({
+        this.apollo.mutate<{ createInterface: GqInterface }>({
             mutation: addInterfaceMutation,
             variables: {
                 componentId: componentId,
@@ -658,7 +659,7 @@ export class ApiService {
     }
 
     public addIssue(componentId: string, issue: IssuePartial) {
-        this.apollo.mutate<{createIssue: GqIssue}>({
+        this.apollo.mutate<{ createIssue: GqIssue }>({
             mutation: addIssueMutation,
             variables: {
                 componentId: componentId,
@@ -673,7 +674,7 @@ export class ApiService {
                     issueId: result.data.createIssue.id,
                     issue: issue,
                 }));
-                this.store.dispatch(addIssueToComponent({componentId: componentId, issueId: issue.id}));
+                this.store.dispatch(addIssueToComponent({ componentId: componentId, issueId: issue.id }));
             }
         });
     }
@@ -695,13 +696,14 @@ export class ApiService {
     }
 
     public updateIssue(componentId: string, issueId: string, issue: IssuePartial) {
-        this.apollo.mutate<{createIssue: GqIssue}>({
+        this.apollo.mutate<{ createIssue: GqIssue }>({
             mutation: updateIssueMutation,
             variables: {
                 componentId: componentId,
                 issueId: issueId,
                 title: issue.title,
                 body: issue.textBody,
+                issueType: issue.type
             },
         }).subscribe(result => {
             if (result.errors == null || result.errors.length === 0) {

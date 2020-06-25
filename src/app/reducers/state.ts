@@ -43,7 +43,7 @@ export interface ComponentInterfaces {
 
 export interface ComponentRelation {
     targetId: string;
-    targetType: 'interface'|'component';
+    targetType: 'interface' | 'component';
 }
 
 export interface Component {
@@ -69,9 +69,9 @@ export interface ComponentsState {
 }
 
 export enum IssueRelationType {
-    RELATED_TO,
-    DUPLICATES,
-    DEPENDS,
+    RELATED_TO = "RELATED_TO",
+    DUPLICATES = "DUPLICATES",
+    DEPENDS = "DEPENDS",
 }
 
 export interface IssueRelation {
@@ -100,9 +100,9 @@ export interface IssueComment {
 }
 
 export enum IssueType {
-    UNCLASSIFIED,
-    BUG,
-    FEATURE_REQUEST,
+    UNCLASSIFIED = "UNCLASSIFIED",
+    BUG = "BUG",
+    FEATURE_REQUEST = "FEATURE_REQUEST",
 }
 
 export interface Issue {

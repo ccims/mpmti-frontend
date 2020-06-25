@@ -280,12 +280,13 @@ const removeInterfaceMutation = gql`
 
 
 const addIssueMutation = gql`
-    mutation createIssue($componentId: ID!, $title: String!, $body: String,) {
+    mutation createIssue($componentId: ID!, $title: String!, $body: String, $issueType: IssueType) {
         createIssue(data: {
             title: $title
             body: $body
             opened: true
             componentId: $componentId
+            issueType: $issueType
         }) {
             id
             title
@@ -665,6 +666,7 @@ export class ApiService {
                 componentId: componentId,
                 title: issue.title,
                 body: issue.textBody,
+                issueType: issue.type
             },
         }).subscribe(result => {
             if (result.errors == null || result.errors.length === 0) {

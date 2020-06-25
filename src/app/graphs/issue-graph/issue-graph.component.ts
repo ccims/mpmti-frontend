@@ -249,7 +249,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                         this.currentComponents = issueGraphData.components;
                         this.currentIssues = issueGraphData.issues;
                         this.updateGraph(issueGraphData.components, issueGraphData.issues, this.projectIsNew);
-                        this.projectIsNew = false;
+                        this.projectIsNew = issueGraphData.components?.length === 0; // prevent not fully loaded states resetting this flag
                     });
             }
         } else {

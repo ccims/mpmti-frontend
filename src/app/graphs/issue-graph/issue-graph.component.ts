@@ -331,6 +331,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                         ...position,
                         title: inter.interfaceName,
                         type: 'interface',
+                        componentNodeId: componentNodeId,
                         data: inter,
                         relatedIssues: new Set<string>(),
                     };
@@ -745,10 +746,14 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             return;
         }
         if (node.type === 'interface') {
+            const graph: GraphEditor = this.graph.nativeElement;
+            const componentNode = graph.getNode(node.componentNodeId);
             // TODO show a edit interface dialog (or similar)
             this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                 data: {
                     projectId: this.project.id,
+                    // TODO add as info when interfaces can have issues in the backend
+                    // component: componentNode.data,
                     interface: node.data,
                     issues: [...node.relatedIssues],
                 }
@@ -773,10 +778,14 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
             }
 
             if (rootNode.type === 'interface') {
+                const graph: GraphEditor = this.graph.nativeElement;
+                const componentNode = graph.getNode(node.componentNodeId);
                 // TODO show a edit component dialog (or similar)
                 this.bottomSheet.open(GraphNodeInfoSheetComponent, {
                     data: {
                         projectId: this.project.id,
+                        // TODO add as info when interfaces can have issues in the backend
+                        // component: componentNode.data,
                         interface: rootNode.data,
                         issues: [...node.issues],
                     }

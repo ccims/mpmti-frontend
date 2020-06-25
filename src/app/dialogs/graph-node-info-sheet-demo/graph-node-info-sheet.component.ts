@@ -19,7 +19,7 @@ export class GraphNodeInfoSheetComponent implements OnInit {
     issues: IssuesState;
 
     constructor(
-        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
+        @Inject(MAT_BOTTOM_SHEET_DATA) public data: any, // to change data input see src/app/graphs/issue-graph/issue-graph.component.ts:733 onNodeClick
         private bottomSheetRef: MatBottomSheetRef<GraphNodeInfoSheetComponent>,
         private store: Store<State>,
         private dialog: MatDialog,

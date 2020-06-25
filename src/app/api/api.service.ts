@@ -438,7 +438,7 @@ export class ApiService {
             comments: [], // TODO
             labels: [], // TODO
         };
-        issue.relatedIssues.forEach(rel => {
+        issue.relatedIssues?.forEach(rel => {
             iss.relatedIssues.push({
                 relatedIssueId: rel.destIssue.id,
                 relationType: GqRelationTypeToIssueRelationType[rel.relationType],

@@ -261,7 +261,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                     || this.blacklistFilter[IssueType.FEATURE_REQUEST] != previous[IssueType.FEATURE_REQUEST]
                     || this.blacklistFilter[IssueType.UNCLASSIFIED] != previous[IssueType.UNCLASSIFIED]
                 ) {
-                    this.updateGraph(this.currentComponents, this.currentIssues, false);
+                    this.updateGraph(this.currentComponents, this.currentIssues, this.projectIsNew);
                 }
             }
         }
@@ -487,7 +487,7 @@ export class IssueGraphComponent implements OnChanges, OnInit, OnDestroy {
                 issueFolderNode.issues.delete(issue.id);
                 issueFolderNode.issueCount = issueFolderNode.issues.size > 99 ? '99+' : issueFolderNode.issues.size;
                 if (issueFolderNode.issues.size === 0) {
-                    gm.removeNodeFromGroup(`${parentNode.id}__issue-group-container`, issueFolderId);
+                    gm.removeNodeFromGroup(issueGroupContainer.id, currentIssueFolderId);
                     graph.removeNode(issueFolderNode);
                 }
             }

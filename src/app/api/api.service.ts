@@ -280,12 +280,13 @@ const removeInterfaceMutation = gql`
 
 
 const addIssueMutation = gql`
-    mutation createIssue($componentId: ID!, $title: String!, $body: String,) {
+    mutation createIssue($componentId: ID!, $title: String!, $body: String, $issueType: IssueType) {
         createIssue(data: {
             title: $title
             body: $body
             opened: true
             componentId: $componentId
+            issueType: $issueType
         }) {
             id
             title
@@ -294,6 +295,15 @@ const addIssueMutation = gql`
             opened
             creationDate
             issueType
+            comments {
+                id
+            }
+            relatedIssues {
+                destIssue {
+                    id
+                }
+                relationType
+            }
         }
     }
 `;
@@ -324,6 +334,15 @@ const updateIssueMutation = gql`
             opened
             creationDate
             issueType
+            comments {
+                id
+            }
+            relatedIssues {
+                destIssue {
+                    id
+                }
+                relationType
+            }
         }
     }
 `;
@@ -659,17 +678,26 @@ export class ApiService {
     }
 
     public addIssue(componentId: string, issue: IssuePartial) {
+        let gqIssueType = GqIssueType.UNCLASSIFIED;
+        if (issue.type === IssueType.BUG) {
+            gqIssueType = GqIssueType.BUG;
+        }
+        if (issue.type === IssueType.FEATURE_REQUEST) {
+            gqIssueType = GqIssueType.FEATURE_REQUEST;
+        }
         this.apollo.mutate<{ createIssue: GqIssue }>({
             mutation: addIssueMutation,
             variables: {
                 componentId: componentId,
                 title: issue.title,
                 body: issue.textBody,
+                issueType: gqIssueType,
             },
         }).subscribe(result => {
             if (result.errors == null || result.errors.length === 0) {
                 console.log(result);
                 const issue = this.gqIssueToIssuePartial(result.data.createIssue);
+                console.log(issue);
                 this.store.dispatch(addIssue({
                     issueId: result.data.createIssue.id,
                     issue: issue,
@@ -696,21 +724,28 @@ export class ApiService {
     }
 
     public updateIssue(componentId: string, issueId: string, issue: IssuePartial) {
-        this.apollo.mutate<{ createIssue: GqIssue }>({
+        let gqIssueType = GqIssueType.UNCLASSIFIED;
+        if (issue.type === IssueType.BUG) {
+            gqIssueType = GqIssueType.BUG;
+        }
+        if (issue.type === IssueType.FEATURE_REQUEST) {
+            gqIssueType = GqIssueType.FEATURE_REQUEST;
+        }
+        this.apollo.mutate<{ updateIssue: GqIssue }>({
             mutation: updateIssueMutation,
             variables: {
                 componentId: componentId,
                 issueId: issueId,
                 title: issue.title,
                 body: issue.textBody,
-                issueType: issue.type
+                issueType: gqIssueType,
             },
         }).subscribe(result => {
             if (result.errors == null || result.errors.length === 0) {
                 console.log(result);
-                const issue = this.gqIssueToIssuePartial(result.data.createIssue);
+                const issue = this.gqIssueToIssuePartial(result.data.updateIssue);
                 this.store.dispatch(updateIssue({
-                    issueId: result.data.createIssue.id,
+                    issueId: result.data.updateIssue.id,
                     issue: issue,
                 }));
             }

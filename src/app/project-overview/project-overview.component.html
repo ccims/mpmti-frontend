@@ -2,7 +2,7 @@
     <mat-tab>
         <ng-template mat-tab-label> Information </ng-template>
         <ng-template matTabContent>
-            <app-project-information [project]="this.getProject()"></app-project-information>
+            <app-project-information [project]="project | async" *ngIf="(project | async) != null"></app-project-information>
         </ng-template>
     </mat-tab>
     <mat-tab>

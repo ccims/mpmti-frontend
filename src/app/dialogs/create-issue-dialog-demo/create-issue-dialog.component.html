@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Create Issue</h2>
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="this.getGeneralInformation()">
+        <ng-template matStepLabel>Create a new Issue</ng-template>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Title</mat-label>
+                <input matInput type="text" title="Title" formControlName="title" cdkFocusInitial required>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>IssueType</mat-label>
+                <mat-select formControlName="issueType" required>
+                    <mat-option [value]="issueType.UNCLASSIFIED">Unclassified</mat-option>
+                    <mat-option [value]="issueType.BUG">Bug</mat-option>
+                    <mat-option [value]="issueType.FEATURE_REQUEST">Feature Request</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field appearance="standard" class="max-length">
+                <mat-label>Description</mat-label>
+                <textarea matInput title="Description" formControlName="body"></textarea>
+            </mat-form-field>
+        </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button mat-dialog-close (click)="this.createIssue()"
+        [disabled]="!this.getGeneralInformation()?.valid">Create</button>
+</mat-dialog-actions>

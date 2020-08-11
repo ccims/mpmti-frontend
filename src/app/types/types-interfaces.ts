@@ -103,8 +103,12 @@ export interface IssueComment {
 }
 
 export enum IssueRelation {
-    RELATED_TO, DUPLICATES, DEPENDS
+    RELATED_TO = "RELATED_TO",
+    DUPLICATES = "DUPLICATES",
+    DEPENDS = "DEPENDS"
 }
 export enum IssueType {
-    BUG, FEATURE_REQUEST, UNCLASSIFIED
+    BUG = "BUG",
+    FEATURE_REQUEST = "FEATURE_REQUEST",
+    UNCLASSIFIED = "UNCLASSIFIED"
 }

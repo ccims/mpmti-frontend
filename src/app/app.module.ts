@@ -18,10 +18,18 @@ import { SystemArchitectureGraphComponent } from './system-architecture-graph/sy
 import { IssueListComponent } from './issue-list/issue-list.component';
 import { ApiService } from './api/api.service';
 import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
-import { CreateComponentDialogComponent } from './dialogs/create-component-dialog/create-component-dialog.component';
-import { CreateProjectDialogComponent } from './dialogs/create-project-dialog/create-project-dialog.component';
+import { CreateComponentDialogComponent } from './dialogs/create-component-dialog-demo/create-component-dialog.component';
+import { CreateProjectDialogComponent } from './dialogs/create-project-dialog-demo/create-project-dialog.component';
+import { CreateInterfaceDialogComponent } from './dialogs/create-interface-dialog-demo/create-interface-dialog.component';
+import { GraphNodeInfoSheetComponent } from './dialogs/graph-node-info-sheet-demo/graph-node-info-sheet.component';
 import { ProjectInformationComponent } from './dashboard/overview/project-information/project-information.component';
 import { GraphsModule } from './graphs/graphs.module';
+import { StoreModule } from '@ngrx/store';
+import { reducers, metaReducers } from './reducers';
+import { GraphQLModule } from './graphql.module';
+import { HttpClientModule } from '@angular/common/http';
+import { CreateIssueDialogComponent } from './dialogs/create-issue-dialog-demo/create-issue-dialog.component';
+import { EditIssueDialogComponent } from './dialogs/edit-issue-dialog-demo/edit-issue-dialog.component';
 
 
 @NgModule({
@@ -39,7 +47,11 @@ import { GraphsModule } from './graphs/graphs.module';
         IssueListComponent,
         CreateComponentDialogComponent,
         CreateProjectDialogComponent,
-        ProjectInformationComponent
+        CreateInterfaceDialogComponent,
+        CreateIssueDialogComponent,
+        EditIssueDialogComponent,
+        GraphNodeInfoSheetComponent,
+        ProjectInformationComponent,
     ],
     imports: [
         GraphsModule,
@@ -47,9 +59,14 @@ import { GraphsModule } from './graphs/graphs.module';
         AppRoutingModule,
         BrowserAnimationsModule,
         MaterialModule,
-        FormsModule, ReactiveFormsModule
+        FormsModule, ReactiveFormsModule,
+        StoreModule.forRoot(reducers, {
+            metaReducers
+        }),
+        GraphQLModule,
+        HttpClientModule
     ],
-    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent],
+    entryComponents: [CreateComponentDialogComponent, CreateProjectDialogComponent, CreateInterfaceDialogComponent, CreateIssueDialogComponent, EditIssueDialogComponent, GraphNodeInfoSheetComponent],
     providers: [
         ApiService, JwtHelperService, { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     ],

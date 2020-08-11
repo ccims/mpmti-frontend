@@ -1,7 +1,12 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { Project, ProjectInformation } from '../types/types-interfaces';
-import { MatDialog } from '@angular/material/dialog';
-import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/create-project-dialog.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog-demo/create-project-dialog.component';
+import { Store, select } from '@ngrx/store';
+import { State, Project } from '../reducers/state';
+import { selectProjectList } from '../reducers/projects.selector';
+import { Observable } from 'rxjs';
+import { ApiService } from '../api/api.service';
+import { ProjectPartial } from '../reducers/projects.actions';
 
 @Component({
     selector: 'app-dashboard',
@@ -11,18 +16,21 @@ import { CreateProjectDialogComponent } from '../dialogs/create-project-dialog/c
 export class DashboardComponent implements OnInit, OnDestroy {
 
     private username: string;
-    private currentProject: ProjectInformation;
-    private openSidenavContent: string = 'DashboardOverview';
-    private projects: ProjectInformation[];
+    //private projects: ProjectInformation[];
+    public projectList: Observable<Project[]>;
 
-    constructor(public dialog: MatDialog) {
+    constructor(public dialog: MatDialog, private store: Store<State>, private api: ApiService) {
     }
 
     ngOnInit() {
         this.username = localStorage.getItem('username');
 
+        this.api.loadProjectList();
+
+        this.projectList = this.store.pipe(select(selectProjectList));
+
         // TODO load projects of user from backend
-        this.projects = [
+        let projects = [
             {
                 generalInformation: {
                     projectName: 'sandros-project',
@@ -81,7 +89,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     onCreateProjectDialog(): void {
-        const createProjectDialog = this.dialog.open(CreateProjectDialogComponent);
+        const createProjectDialog: MatDialogRef<CreateProjectDialogComponent, ProjectPartial> = this.dialog.open(CreateProjectDialogComponent);
 
         createProjectDialog.afterClosed().subscribe(projectInformation => {
             // TODO create project and add to sidenav
@@ -91,36 +99,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    private addNewProject(projectInformation: ProjectInformation): void {
-        const project: ProjectInformation = projectInformation;
-        project.generalInformation.projectOwnerName = this.username;
-        // TODO send 'project' it to backend
-        // TODO if backend answeres with 201 add to projects, otherwise throw an error
-        this.projects.push(project);
+    private addNewProject(projectInformation: ProjectPartial): void {
+        this.api.addProject(projectInformation);
     }
 
-    public setCurrentProjectAndOpenSidenavContentComponent(projectName: string, sidenavContentComponent: string) {
-        this.projects.forEach((project) => {
-            if (project.generalInformation.projectName === projectName) {
-                this.currentProject = project;
-            }
-        });
-        this.openSidenavContent = sidenavContentComponent;
+    removeProject(projectId: string): void {
+        this.api.removeProject(projectId);
     }
 
     public logout(): void {
         localStorage.removeItem('username');
         localStorage.removeItem('token'); // TODO implement correctly
-    }
-    public getProjects(): ProjectInformation[] {
-        return this.projects;
-    }
-
-    public getOpenSidenavContent(): string {
-        return this.openSidenavContent;
-    }
-
-    public getCurrentProject(): ProjectInformation {
-        return this.currentProject;
     }
 }

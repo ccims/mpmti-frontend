@@ -30,6 +30,7 @@ import { GraphQLModule } from './graphql.module';
 import { HttpClientModule } from '@angular/common/http';
 import { CreateIssueDialogComponent } from './dialogs/create-issue-dialog-demo/create-issue-dialog.component';
 import { EditIssueDialogComponent } from './dialogs/edit-issue-dialog-demo/edit-issue-dialog.component';
+import { PasswordChangeComponent } from './password-change/password-change.component';
 
 
 @NgModule({
@@ -52,6 +53,7 @@ import { EditIssueDialogComponent } from './dialogs/edit-issue-dialog-demo/edit-
         EditIssueDialogComponent,
         GraphNodeInfoSheetComponent,
         ProjectInformationComponent,
+        PasswordChangeComponent,
     ],
     imports: [
         GraphsModule,

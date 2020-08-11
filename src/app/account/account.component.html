@@ -1,9 +1,22 @@
-
 <app-toolbar></app-toolbar>
-<div class="dashboard-container" style="display: block;">
-        <h1>Hi</h1>
-        <h1>Hi</h1>
-        <h1>Hi</h1>
-        <h1>Hi</h1>
+<div class="dashboard-container">
+    <mat-card>
+        <mat-card-title>My Account</mat-card-title>
+        <mat-card-content id="account-data">
+            <div>
+                <h4>Username</h4>
+                <p>Mac Miller</p>
+            </div>
+            <div>
+                <h4>Email</h4>
+                <p>mac.miller@example.com</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+    <mat-card>
+        <mat-card-title>Change Password</mat-card-title>
+        <mat-card-content>
+            <app-password-change></app-password-change>
+        </mat-card-content>
+    </mat-card>
 </div>
-
